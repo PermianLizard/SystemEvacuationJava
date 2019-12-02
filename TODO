@@ -1,0 +1,25 @@
+== basic ==
+- open a window [done]
+- draw an image [done]
+- update loop [done]
+- register key strokes [done]
+- rotate the image [done]
+- ApplicationFrame main class or Main class [done]
+- scene/director [done]
+- clearing the screen [done]
+- asset loading [done]
+- drawing multiple objects efficiently
+- define game entity with anchor point for rotations [done]
+- sprites and animated sprite [done]
+- ship thrust animation [done]
+- move ship (translation) [done]
+- center screen on ship [done]
+- GameObject/Entity [done]
+- font loading [done]
+- collision detection
+- camera?
+- physics?
+
+== packaging ==
+- executable jar [done]
+- package resources [done]
