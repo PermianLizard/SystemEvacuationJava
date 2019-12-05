@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.Random;
 
 class Star {
+
     double x, y;
     float depth;
     Color color;
@@ -22,19 +23,12 @@ public class Starfield {
     private int width;
     private int height;
 
-
     private Star[] starsArr;
 
     public Starfield(int size, int width, int height) {
         this.size = size;
         this.width = width;
         this.height = height;
-
-        generate();
-    }
-
-    public void update(double delay) {
-
     }
 
     public void render(Graphics2D g, double offsetX, double offsetY) {
@@ -61,11 +55,9 @@ public class Starfield {
             g.setColor(star.color);
             g.drawLine((int)x, (int)y, (int)x, (int)y);
         }
-
-        g.fillOval(10, 10, 5, 5);
     }
 
-    private void generate() {
+    public void generate() {
         starsArr = new Star[size];
 
         Random rand = new Random();

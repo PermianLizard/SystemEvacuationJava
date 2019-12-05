@@ -109,6 +109,7 @@ public class GameScene extends Scene {
         cameraX = ship.getX();
         cameraY = ship.getY();
         starfield = new Starfield(180, getDirector().getWidth(), getDirector().getHeight());
+        starfield.generate();
     }
 
     public void onExit() {
@@ -161,8 +162,6 @@ public class GameScene extends Scene {
                 }
             }
         }
-
-        // work out where the camera is looking
     }
 
     @Override
