@@ -2,10 +2,10 @@ package permianlizard.se.game;
 
 import permianlizard.se.ImageResource;
 
-public class Ship extends GameObject {
+public class PlanetB extends Planet {
 
-    public Ship(double x, double y) {
-        super(ImageResource.getImage(ImageResource.SHIP), x, y);
+    public PlanetB(double x, double y) {
+        super(ImageResource.getImage(ImageResource.PLANET_64_2), x, y);
         setCollisionRadius(getImage().getWidth() / 2);
     }
 

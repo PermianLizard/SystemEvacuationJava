@@ -10,6 +10,7 @@ public class AnimatedSprite extends Sprite {
     private int currentPeriod;
     private boolean playing;
     private boolean loop;
+    private boolean done;
 
     // single frame
     public AnimatedSprite(BufferedImage frame, double x, double y) {
@@ -43,12 +44,16 @@ public class AnimatedSprite extends Sprite {
         this.loop = loop;
     }
 
-    public void update() {
+    public void update(double delta) {
         if (playing) {
             if (currentPeriod > 0) {
                 currentPeriod--;
             } else {
-                nextFrame();
+                if (currentFrame == frames.length - 1 && !loop) {
+                    done = true;
+                } else {
+                    nextFrame();
+                }
             }
         }
     }
@@ -61,6 +66,7 @@ public class AnimatedSprite extends Sprite {
         setImage(frames[frameIndex]);
         currentFrame = frameIndex;
         currentPeriod = period;
+        done = false;
     }
 
     public void nextFrame() {
@@ -83,6 +89,7 @@ public class AnimatedSprite extends Sprite {
 
     public void setCurrentFrame(int currentFrame) {
         this.currentFrame = currentFrame;
+        setFrame(this.currentFrame);
     }
 
     public int getPeriod() {
@@ -103,5 +110,9 @@ public class AnimatedSprite extends Sprite {
 
     public void setLoop(boolean loop) {
         this.loop = loop;
+    }
+
+    public boolean isDone() {
+        return done;
     }
 }

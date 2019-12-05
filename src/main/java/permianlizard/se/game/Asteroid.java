@@ -9,4 +9,7 @@ public class Asteroid extends GameObject {
         setCollisionRadius(getImage().getWidth() /2);
     }
 
+    public void onCollide(GameObject other) {
+
+    }
 }

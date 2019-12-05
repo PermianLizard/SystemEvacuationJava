@@ -27,7 +27,7 @@ public class Sprite {
         this.anchorY = anchorY;
     }
 
-    public void update() {
+    public void update(double delta) {
 
     }
 

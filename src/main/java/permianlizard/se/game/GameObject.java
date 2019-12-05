@@ -4,9 +4,18 @@ import permianlizard.se.sprite.AnimatedSprite;
 
 import java.awt.image.BufferedImage;
 
-public class GameObject extends AnimatedSprite {
+public abstract class GameObject extends AnimatedSprite {
+
+    public static final float GRAVITY_CONSTANT = 2f;
+    public static final float SPEED_LIMIT = 180f;
 
     private float collisionRadius;
+    private float velX;
+    private float velY;
+    private float accX;
+    private float accY;
+    private float mass;
+    private boolean staticObject;
 
     public GameObject(BufferedImage frame, double x, double y) {
         super(frame, x, y);
@@ -49,5 +58,22 @@ public class GameObject extends AnimatedSprite {
         double distance = Math.sqrt(Math.pow(otherCenterX - thisCenterX , 2) + Math.pow(otherCenterY - thisCenterY , 2));
 
         return distance < thisCollisionRadius + otherCollisionRadius;
+    }
+
+    public abstract void onCollide(GameObject other);
+
+    @Override
+    public void update(double delta) {
+        super.update(delta);
+        if (staticObject == false) {
+
+        }
+    }
+
+    public void applyForce(float forceX, float forceY) {
+        float x = forceX / this.mass;
+        float y = forceY / this.mass;
+        this.velX += x;
+        this.velY += y;
     }
 }

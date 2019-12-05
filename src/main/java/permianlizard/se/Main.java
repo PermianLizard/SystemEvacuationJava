@@ -35,12 +35,14 @@ public class Main implements Runnable {
         bufferStrategy.show();
     }
 
-    private void update() {
-        director.update();
+    private void update(double delta) {
+        director.update(delta);
     }
 
     @Override
     public void run() {
+
+        //System.setProperty("sun.java2d.opengl", "true");
 
         try {
             ImageResource.loadImages();
@@ -83,40 +85,39 @@ public class Main implements Runnable {
         bufferStrategy = canvas.getBufferStrategy();
         canvas.requestFocus();
 
-        director = new Director();
+        director = new Director(WIDTH, HEIGHT);
         canvas.addKeyListener(director);
 
         GameScene gameScene = new GameScene("GameScene");
         director.addScene(gameScene);
         director.setScene(gameScene.getName());
 
-        long desiredDeltaLoop =  (1000 * 1000 * 1000) / 60;
+        long lastLoopTime = System.nanoTime();
+        final long desiredDeltaLoop =  (1000 * 1000 * 1000) / FPS;
+        long lastFpsTime = 0;
 
-        while (true) {
-            long beginLoopTime;
-            long endLoopTime;
-            long deltaLoop;
+        while(true){
+            long now = System.nanoTime();
+            long updateLength = now - lastLoopTime;
+            lastLoopTime = now;
+            double delta = updateLength / ((double) desiredDeltaLoop);
 
-            boolean running = true;
+            lastFpsTime += updateLength;
+            if(lastFpsTime >= 1000000000){
+                lastFpsTime = 0;
+            }
 
-            while (running) {
-                beginLoopTime = System.nanoTime();
+            update(delta);
+            render();
 
-                render();
-                update();
-
-                endLoopTime = System.nanoTime();
-                deltaLoop = endLoopTime - beginLoopTime;
-
-                if (deltaLoop > desiredDeltaLoop) {
-                    // loop running late
-                } else {
-                    try {
-                        Thread.sleep(((desiredDeltaLoop - deltaLoop) / (1000000)));
-                    } catch (InterruptedException e) {
-                        running = false;
-                    }
+            try{
+                long delay = (lastLoopTime - System.nanoTime() + desiredDeltaLoop) / 1000000;
+                if (delay > 0) {
+                    Thread.sleep(delay);
                 }
+            }catch(Exception e){
+                e.printStackTrace();
+                // TODO
             }
         }
     }

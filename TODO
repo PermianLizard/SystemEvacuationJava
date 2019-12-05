@@ -16,9 +16,20 @@
 - center screen on ship [done]
 - GameObject/Entity [done]
 - font loading [done]
-- collision detection
-- camera?
+- Game Object for all game entities [done]
+- collision detection [done]
+- draw order [done]
+- fix stuttering ship graphic issue (ship sprite flickers and draws out of place) [done]
+- fix thrust graphic [done]
+- starfield [done]
+- vector2D object?
 - physics?
+- bases crew rescue/repair/refuel
+- director width/height [done]
+- director bitKeySet [done]
+- camera
+- generate explosions
+
 
 == packaging ==
 - executable jar [done]
