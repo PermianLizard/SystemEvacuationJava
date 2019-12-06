@@ -1,5 +1,6 @@
 package permianlizard.se.game;
 
+import permianlizard.se.MathUtil;
 import permianlizard.se.sprite.AnimatedSprite;
 
 import java.awt.image.BufferedImage;
@@ -10,10 +11,8 @@ public abstract class GameObject extends AnimatedSprite {
     public static final float SPEED_LIMIT = 180f;
 
     private float collisionRadius;
-    private float velX;
-    private float velY;
-    private float accX;
-    private float accY;
+    private double velX;
+    private double velY;
     private float mass;
     private boolean staticObject;
 
@@ -55,7 +54,7 @@ public abstract class GameObject extends AnimatedSprite {
         double otherCenterX = other.getX() + other.getWidth() / 2;
         double otherCenterY = other.getY() + other.getHeight() / 2;
 
-        double distance = Math.sqrt(Math.pow(otherCenterX - thisCenterX , 2) + Math.pow(otherCenterY - thisCenterY , 2));
+        double distance = MathUtil.distance(thisCenterX, thisCenterY, otherCenterX, otherCenterY);
 
         return distance < thisCollisionRadius + otherCollisionRadius;
     }
@@ -65,15 +64,44 @@ public abstract class GameObject extends AnimatedSprite {
     @Override
     public void update(double delta) {
         super.update(delta);
-        if (staticObject == false) {
-
-        }
     }
 
-    public void applyForce(float forceX, float forceY) {
-        float x = forceX / this.mass;
-        float y = forceY / this.mass;
+    public void applyForce(double forceX, double forceY) {
+        double x = forceX / this.mass;
+        double y = forceY / this.mass;
         this.velX += x;
         this.velY += y;
+    }
+
+    public double getVelX() {
+        return velX;
+    }
+
+    public void setVelX(double velX) {
+        this.velX = velX;
+    }
+
+    public double getVelY() {
+        return velY;
+    }
+
+    public void setVelY(double velY) {
+        this.velY = velY;
+    }
+
+    public float getMass() {
+        return mass;
+    }
+
+    public void setMass(float mass) {
+        this.mass = mass;
+    }
+
+    public boolean isStaticObject() {
+        return staticObject;
+    }
+
+    public void setStaticObject(boolean staticObject) {
+        this.staticObject = staticObject;
     }
 }

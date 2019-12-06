@@ -18,13 +18,14 @@
 - font loading [done]
 - Game Object for all game entities [done]
 - collision detection [done]
-- draw order [done]
+- draw order [done]6
 - fix stuttering ship graphic issue (ship sprite flickers and draws out of place) [done]
 - fix thrust graphic [done]
 - starfield [done]
 - vector2D object?
 - physics?
-- bases crew rescue/repair/refuel
+- ship fuel hull condition, rescues + display
+- bases crew rescue/repair/refuel + display
 - director width/height [done]
 - director bitKeySet [done]
 - camera

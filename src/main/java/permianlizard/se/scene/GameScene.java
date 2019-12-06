@@ -2,6 +2,7 @@ package permianlizard.se.scene;
 
 import permianlizard.se.FontResource;
 import permianlizard.se.ImageResource;
+import permianlizard.se.MathUtil;
 import permianlizard.se.Starfield;
 import permianlizard.se.game.*;
 import permianlizard.se.sprite.AnimatedSprite;
@@ -14,6 +15,42 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+
+class TimedLabel {
+    private String text;
+    private double x, y;
+    private int duration;
+    private boolean done;
+
+    public TimedLabel(String text, double x, double y, int duration) {
+        this.text = text;
+        this.x = x;
+        this.y = y;
+        this.duration = duration;
+        this.done = false;
+    }
+
+    public void update() {
+        if (!done) {
+            duration--;
+            if (duration <= 0) {
+                done = true;
+            }
+        }
+    }
+
+    public void render(Graphics2D g, double xOffset, double yOffset) {
+        Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(12.0f).deriveFont(Font.PLAIN);
+        g.setFont(defaultFont);
+        g.setColor(Color.GREEN);
+        //Rectangle textBounds = g.getFontMetrics(defaultFont).getStringBounds(text, g).getBounds();
+        g.drawString(text, (int) (x - xOffset), (int) (y - yOffset));
+    }
+
+    public boolean isDone() {
+        return done;
+    }
+}
 
 public class GameScene extends Scene {
 
@@ -38,7 +75,9 @@ public class GameScene extends Scene {
     java.util.List<Base> baseList;
     java.util.List<Planet> planetList;
 
-    java.util.List<Sprite> spriteList;
+    java.util.List<GameObject> objectList;
+
+    java.util.List<TimedLabel> timedLabelList;
 
     public GameScene(String name) {
         super(name);
@@ -46,69 +85,72 @@ public class GameScene extends Scene {
 
     public void onEnter() {
 
-        screenCenterX = getDirector().getWidth() / 2;
-        screenCenterY = getDirector().getHeight() / 2;
+        Director director = getDirector();
+
+        screenCenterX = director.getWidth() / 2;
+        screenCenterY = director.getHeight() / 2;
 
         explosionList = new ArrayList<>();
         asteroidList = new ArrayList<>();
         baseList = new ArrayList<>();
         planetList = new ArrayList<>();
 
-        spriteList = new ArrayList<>();
+        objectList = new ArrayList<>();
+
+        timedLabelList = new ArrayList<>();
 
         ship = new Ship(500, 150);
-        spriteList.add(ship);
+        objectList.add(ship);
 
         BufferedImage[] anim = ImageResource.getAnimation(ImageResource.THRUST);
         thrustSprite = new AnimatedSprite(anim, 494, 144, 2, true);
         thrustSprite.setVisible(false);
-        spriteList.add(thrustSprite);
 
         anim = ImageResource.getAnimation(ImageResource.EXPLOSION);
         explosionSprite = new AnimatedSprite(anim, 400, 150, 8, true);
         explosionSprite.setRotation(45.0f);
         explosionList.add(explosionSprite);
-        spriteList.add(explosionSprite);
 
         asteroid = new Asteroid(300, 150);
         asteroidList.add(asteroid);
-        spriteList.add(asteroid);
+        objectList.add(asteroid);
 
         Base base = new Base(80, 25);
         baseList.add(base);
-        spriteList.add(base);
+        objectList.add(base);
 
         base = new Base(200, 25);
         baseList.add(base);
-        spriteList.add(base);
+        objectList.add(base);
 
         base = new Base(80, 150);
         baseList.add(base);
-        spriteList.add(base);
+        objectList.add(base);
 
         base = new Base(200, 150);
         baseList.add(base);
-        spriteList.add(base);
+        objectList.add(base);
 
         moonA = new MoonA(600, 250);
         planetList.add(moonA);
-        spriteList.add(moonA);
+        objectList.add(moonA);
 
         planetA = new PlanetA(400, 250);
         planetList.add(planetA);
-        spriteList.add(planetA);
+        objectList.add(planetA);
 
         planetB = new PlanetB(200, 250);
         planetList.add(planetB);
-        spriteList.add(planetB);
+        objectList.add(planetB);
 
         sun = new Sun(200, 450);
-        spriteList.add(sun);
+        objectList.add(sun);
 
         // FIXME
         cameraX = ship.getX();
         cameraY = ship.getY();
-        starfield = new Starfield(180, getDirector().getWidth(), getDirector().getHeight());
+
+        starfield = new Starfield(180, director.getWidth(), director.getHeight());
         starfield.generate();
     }
 
@@ -143,24 +185,61 @@ public class GameScene extends Scene {
         thrustSprite.update(delta);
         ship.update(delta);
 
-        // check for collisions
-        for (int a = 0; a < spriteList.size() - 1; a++) {
-            for (int b = a + 1; b < spriteList.size(); b++) {
-                Sprite spriteA = spriteList.get(a);
-                Sprite spriteB = spriteList.get(b);
+        // update physics
+        for (GameObject object : objectList) {
 
-                if (spriteA instanceof GameObject && spriteB instanceof GameObject) {
-
-                    GameObject objectA = (GameObject)spriteA;
-                    GameObject objectB = (GameObject)spriteB;
-
-                    if (objectA.collidesWith(objectB)) {
-                        // handle collision
-                        objectA.onCollide(objectB);
-                        objectB.onCollide(objectA);
-                    }
-                }
+            if (object.isStaticObject()) {
+                continue;
             }
+
+            double velX = object.getVelX();
+            double velY = object.getVelY();
+
+            object.translate(velX, velY);
+        }
+
+        // check base collection
+        float shipCollisionRadius = ship.getCollisionRadius();
+        for (Base base : baseList) {
+
+            if (base.isVisited()) {
+                continue;
+            }
+
+            float collectionRadius = base.getCollectionRadius();
+            double distance = MathUtil.distance(ship.getX(), ship.getY(), base.getX(), base.getY());
+            if (distance < shipCollisionRadius + collectionRadius) {
+                base.visit();
+                timedLabelList.add(new TimedLabel("Fuel 000", ship.getX() + 36, ship.getY(), 200));
+            }
+        }
+
+        // check for collisions
+        for (int a = 0; a < objectList.size() - 1; a++) {
+            for (int b = a + 1; b < objectList.size(); b++) {
+
+                GameObject objectA = objectList.get(a);
+                GameObject objectB = objectList.get(b);
+
+                if (objectA.collidesWith(objectB)) {
+                    // handle collision
+                    objectA.onCollide(objectB);
+                    objectB.onCollide(objectA);
+                }
+
+            }
+        }
+
+        // timed labels
+        java.util.List<TimedLabel> labelsToRemove = new ArrayList<>(timedLabelList.size());
+        for (TimedLabel timedLabel : timedLabelList) {
+            timedLabel.update();
+            if (timedLabel.isDone()) {
+                labelsToRemove.add(timedLabel);
+            }
+        }
+        for (TimedLabel timedLabel : labelsToRemove) {
+            timedLabelList.remove(timedLabel);
         }
     }
 
@@ -192,7 +271,11 @@ public class GameScene extends Scene {
             drawSprite(g, explosion, shipX, shipY, width, height);
         }
 
-        drawShip(g, width, height);
+        drawShip(g);
+
+        for (TimedLabel timedLabel : timedLabelList) {
+            timedLabel.render(g, cameraX, cameraY);
+        }
 
         /*for (Sprite sprite : spriteList) {
             drawSprite(g, sprite, shipX, shipY, width, height);
@@ -211,119 +294,6 @@ public class GameScene extends Scene {
         g.drawString(text, 20, 20);
     }
 
-    private void drawSprite(Graphics2D g, Sprite sprite, double x, double y, int width, int height) {
-        if (!sprite.isVisible()) {
-            return;
-        }
-
-        double spriteX = sprite.getX();
-        double spriteY = sprite.getY();
-
-        // check if sprite in in view area
-        if (spriteX + sprite.getWidth() - 1 < cameraX) {
-            return;
-        }
-
-        if (spriteX > cameraX + width) {
-            return;
-        }
-
-        if (spriteY + sprite.getHeight() - 1 < cameraY) {
-            return;
-        }
-
-        if (spriteY > cameraY + height) {
-            return;
-        }
-
-        // move to center of object "anchor point"
-        AffineTransform translateToRotate = AffineTransform.getTranslateInstance(-sprite.getAnchorX(), -sprite.getAnchorY());
-        // rotate the object around the anchor point
-        AffineTransform rotateObject = AffineTransform.getRotateInstance(Math.toRadians(sprite.getRotation()), 0, 0);
-        // move the object back to origin
-        AffineTransform translateToDraw = AffineTransform.getTranslateInstance(sprite.getAnchorX(), sprite.getAnchorY());
-        // translate the object to its position in the scene
-        AffineTransform translateWorld = AffineTransform.getTranslateInstance(spriteX - cameraX, spriteY - cameraY);
-
-        rotateObject.concatenate(translateToRotate);
-        translateToDraw.concatenate(rotateObject);
-        translateWorld.concatenate(translateToDraw);
-
-        AffineTransformOp op = new AffineTransformOp(translateWorld, AffineTransformOp.TYPE_BILINEAR);
-
-        g.drawImage(op.filter(sprite.getImage(), null), 0, 0, null);
-
-        // draw collision circles
-        if (sprite instanceof GameObject) {
-            GameObject object = (GameObject)sprite;
-
-            float collisionRadius = object.getCollisionRadius();
-            double centerX = object.getX() + object.getAnchorX();
-            double centerY = object.getY() + object.getAnchorY();
-
-            g.setColor(Color.BLUE);
-            g.drawOval((int) Math.rint(centerX - collisionRadius - cameraX), (int) Math.rint(centerY - collisionRadius - cameraY), (int) (collisionRadius * 2), (int) (collisionRadius * 2));
-        }
-
-        // draw collision circles
-        if (sprite instanceof Base) {
-            Base base = (Base)sprite;
-
-            float collectionRadius = base.getCollectionRadius();
-
-            // only works if anchorX is guaranteed to be at the center
-            double centerX = base.getX() + base.getAnchorX();
-            double centerY = base.getY() + base.getAnchorY();
-
-            g.setColor(Color.RED);
-            g.drawOval((int) Math.rint(centerX - collectionRadius - cameraX), (int) Math.rint(centerY - collectionRadius - cameraY), (int) (collectionRadius * 2), (int) (collectionRadius * 2));
-        }
-    }
-
-    private void drawShip(Graphics2D g, int width, int height) {
-        if (!ship.isVisible()) {
-            return;
-        }
-
-        // Ship
-        AffineTransform translateToRotate = AffineTransform.getTranslateInstance(-ship.getAnchorX(), -ship.getAnchorY());
-        AffineTransform rotateObject = AffineTransform.getRotateInstance(Math.toRadians(ship.getRotation()), 0, 0);
-        AffineTransform translateToDraw = AffineTransform.getTranslateInstance(ship.getAnchorX(), ship.getAnchorY());
-        AffineTransform translateWorld = AffineTransform.getTranslateInstance(screenCenterX, screenCenterY);
-
-        rotateObject.concatenate(translateToRotate);
-        translateToDraw.concatenate(rotateObject);
-        translateWorld.concatenate(translateToDraw);
-
-        AffineTransformOp op = new AffineTransformOp(translateWorld, AffineTransformOp.TYPE_BILINEAR);
-        g.drawImage(op.filter(ship.getImage(), null), 0, 0, null);
-
-        // Thrust
-        if (thrustSprite .isVisible()) {
-
-            translateToRotate = AffineTransform.getTranslateInstance(-thrustSprite.getAnchorX(), -thrustSprite.getAnchorY());
-            rotateObject = AffineTransform.getRotateInstance(Math.toRadians(ship.getRotation()), 0, 0);
-            translateToDraw = AffineTransform.getTranslateInstance(thrustSprite.getAnchorX(), thrustSprite.getAnchorY());
-            translateWorld = AffineTransform.getTranslateInstance(screenCenterX - 6, screenCenterY - 6); // FIXME
-
-            rotateObject.concatenate(translateToRotate);
-            translateToDraw.concatenate(rotateObject);
-            translateWorld.concatenate(translateToDraw);
-
-            op = new AffineTransformOp(translateWorld, AffineTransformOp.TYPE_BILINEAR);
-            g.drawImage(op.filter(thrustSprite.getImage(), null), 0, 0, null);
-        }
-
-        // draw collision circle
-        g.setColor(Color.BLUE);
-        float collisionRadius = ship.getCollisionRadius();
-        double centerX = screenCenterX + ship.getAnchorX();
-        double centerY = screenCenterY + ship.getAnchorY();
-
-        g.setColor(Color.BLUE);
-        g.drawOval((int) Math.rint(centerX - collisionRadius), (int) Math.rint(centerY - collisionRadius), (int) (collisionRadius * 2), (int) (collisionRadius * 2));
-    }
-
     @Override
     public void keyTyped(KeyEvent e) {
 
@@ -334,20 +304,22 @@ public class GameScene extends Scene {
         int keyCode = e.getKeyCode();
 
         if (keyCode == 65) { // a
-            ship.addRotation(-16);
-            thrustSprite.addRotation(-16);
+            ship.rotateLeft();
+            //thrustSprite.addRotation(-16);
         } else if (keyCode == 68) { // d
-            ship.addRotation(16);
-            thrustSprite.addRotation(16);
+            ship.rotateRight();
+            //thrustSprite.addRotation(16);
         } else if (keyCode == 87) { // w
 
             float rotationInDegrees = ship.getRotation();
+            float thrustForce = ship.getThrustForce();
             double rotationInRadians = Math.toRadians(rotationInDegrees);
-            double tx = Math.cos(rotationInRadians) * 5;
-            double ty = Math.sin(rotationInRadians) * 5;
+            double tx = Math.cos(rotationInRadians) * thrustForce;
+            double ty = Math.sin(rotationInRadians) * thrustForce;
 
-            ship.translate(tx, ty);
-            thrustSprite.translate(tx, ty);
+            ship.applyForce(tx, ty);
+            //ship.translate(tx, ty);
+            //thrustSprite.translate(tx, ty);
 
             thrustSprite.setVisible(true);
         } else if (keyCode == 83) { // s
@@ -396,5 +368,118 @@ public class GameScene extends Scene {
     @Override
     public void mouseMoved(MouseEvent mouseEvent) {
 
+    }
+
+    private void drawSprite(Graphics2D g, Sprite sprite, double x, double y, int width, int height) {
+        if (!sprite.isVisible()) {
+            return;
+        }
+
+        double spriteX = sprite.getX();
+        double spriteY = sprite.getY();
+
+        // check if sprite in in view area
+        if (spriteX + sprite.getWidth() - 1 < cameraX) {
+            return;
+        }
+
+        if (spriteX > cameraX + width) {
+            return;
+        }
+
+        if (spriteY + sprite.getHeight() - 1 < cameraY) {
+            return;
+        }
+
+        if (spriteY > cameraY + height) {
+            return;
+        }
+
+        // move to center of object "anchor point"
+        AffineTransform translateToRotate = AffineTransform.getTranslateInstance(-sprite.getAnchorX(), -sprite.getAnchorY());
+        // rotate the object around the anchor point
+        AffineTransform rotateObject = AffineTransform.getRotateInstance(Math.toRadians(sprite.getRotation()), 0, 0);
+        // move the object back to origin
+        AffineTransform translateToDraw = AffineTransform.getTranslateInstance(sprite.getAnchorX(), sprite.getAnchorY());
+        // translate the object to its position in the scene
+        AffineTransform translateWorld = AffineTransform.getTranslateInstance(spriteX - cameraX, spriteY - cameraY);
+
+        rotateObject.concatenate(translateToRotate);
+        translateToDraw.concatenate(rotateObject);
+        translateWorld.concatenate(translateToDraw);
+
+        AffineTransformOp op = new AffineTransformOp(translateWorld, AffineTransformOp.TYPE_BILINEAR);
+
+        g.drawImage(op.filter(sprite.getImage(), null), 0, 0, null);
+
+        // draw collision circles
+        if (sprite instanceof GameObject) {
+            GameObject object = (GameObject) sprite;
+
+            float collisionRadius = object.getCollisionRadius();
+            double centerX = object.getX() + object.getAnchorX();
+            double centerY = object.getY() + object.getAnchorY();
+
+            g.setColor(Color.BLUE);
+            g.drawOval((int) Math.rint(centerX - collisionRadius - cameraX), (int) Math.rint(centerY - collisionRadius - cameraY), (int) (collisionRadius * 2), (int) (collisionRadius * 2));
+        }
+
+        // draw collision circles
+        if (sprite instanceof Base) {
+            Base base = (Base) sprite;
+
+            float collectionRadius = base.getCollectionRadius();
+
+            // only works if anchorX is guaranteed to be at the center
+            double centerX = base.getX() + base.getAnchorX();
+            double centerY = base.getY() + base.getAnchorY();
+
+            g.setColor(Color.RED);
+            g.drawOval((int) Math.rint(centerX - collectionRadius - cameraX), (int) Math.rint(centerY - collectionRadius - cameraY), (int) (collectionRadius * 2), (int) (collectionRadius * 2));
+        }
+    }
+
+    private void drawShip(Graphics2D g) {
+        if (!ship.isVisible()) {
+            return;
+        }
+
+        // Ship
+        AffineTransform translateToRotate = AffineTransform.getTranslateInstance(-ship.getAnchorX(), -ship.getAnchorY());
+        AffineTransform rotateObject = AffineTransform.getRotateInstance(Math.toRadians(ship.getRotation()), 0, 0);
+        AffineTransform translateToDraw = AffineTransform.getTranslateInstance(ship.getAnchorX(), ship.getAnchorY());
+        AffineTransform translateWorld = AffineTransform.getTranslateInstance(screenCenterX, screenCenterY);
+
+        rotateObject.concatenate(translateToRotate);
+        translateToDraw.concatenate(rotateObject);
+        translateWorld.concatenate(translateToDraw);
+
+        AffineTransformOp op = new AffineTransformOp(translateWorld, AffineTransformOp.TYPE_BILINEAR);
+        g.drawImage(op.filter(ship.getImage(), null), 0, 0, null);
+
+        // Thrust
+        if (thrustSprite.isVisible()) {
+
+            translateToRotate = AffineTransform.getTranslateInstance(-thrustSprite.getAnchorX(), -thrustSprite.getAnchorY());
+            rotateObject = AffineTransform.getRotateInstance(Math.toRadians(ship.getRotation()), 0, 0);
+            translateToDraw = AffineTransform.getTranslateInstance(thrustSprite.getAnchorX(), thrustSprite.getAnchorY());
+            translateWorld = AffineTransform.getTranslateInstance(screenCenterX - 6, screenCenterY - 6); // FIXME
+
+            rotateObject.concatenate(translateToRotate);
+            translateToDraw.concatenate(rotateObject);
+            translateWorld.concatenate(translateToDraw);
+
+            op = new AffineTransformOp(translateWorld, AffineTransformOp.TYPE_BILINEAR);
+            g.drawImage(op.filter(thrustSprite.getImage(), null), 0, 0, null);
+        }
+
+        // draw collision circle
+        g.setColor(Color.BLUE);
+        float collisionRadius = ship.getCollisionRadius();
+        double centerX = screenCenterX + ship.getAnchorX();
+        double centerY = screenCenterY + ship.getAnchorY();
+
+        g.setColor(Color.BLUE);
+        g.drawOval((int) Math.rint(centerX - collisionRadius), (int) Math.rint(centerY - collisionRadius), (int) (collisionRadius * 2), (int) (collisionRadius * 2));
     }
 }
