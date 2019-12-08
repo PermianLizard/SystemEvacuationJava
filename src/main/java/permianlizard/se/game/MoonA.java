@@ -2,7 +2,7 @@ package permianlizard.se.game;
 
 import permianlizard.se.ImageResource;
 
-public class MoonA extends Planet {
+public class MoonA extends Moon {
 
     public MoonA(double x, double y) {
         super(ImageResource.getImage(ImageResource.MOON_48_1), x, y);

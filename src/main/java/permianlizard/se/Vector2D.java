@@ -4,8 +4,8 @@ import java.util.Objects;
 
 public class Vector2D {
 
-    private double x;
-    private double y;
+    private final double x;
+    private final double y;
 
     public static Vector2D add(Vector2D a, Vector2D b) {
         return new Vector2D(a.x + b.x, a.y + b.y);
@@ -15,62 +15,69 @@ public class Vector2D {
         return new Vector2D(a.x - b.x, a.y - b.y);
     }
 
+    public static Vector2D div(Vector2D a, Vector2D b) {
+        return new Vector2D(a.x / b.x, a.y / b.y);
+    }
+
+    public static Vector2D mult(Vector2D a, Vector2D b) {
+        return new Vector2D(a.x * b.x, a.y * b.y);
+    }
+
+    public static Vector2D mult(Vector2D v, double value) {
+        return new Vector2D(v.x * value, v.y * value);
+    }
+
+    public static double dot(Vector2D a, Vector2D b) {
+        return a.x * b.x + a.y * b.y;
+    }
+
+    public static double cross(Vector2D a, Vector2D b) {
+        return a.x * b.x - a.y * b.y;
+    }
+
+    public static double getAngleBetween(Vector2D a, Vector2D b) {
+        double cross = Vector2D.cross(a, b);
+        double dot = Vector2D.dot(a, b);
+        return Math.toDegrees(Math.atan2(cross, dot));
+    }
+
+    public static Vector2D getUnit(Vector2D v) {
+        double length = v.getLength();
+        double x = v.x / length;
+        double y = v.y / length;
+        return new Vector2D(x, y);
+    }
+
+    public static Vector2D setLength(Vector2D v,  double length) {
+        double len = v.getLength();
+        double x = (v.x / len) * length;
+        double y = (v.y / len) * length;
+        return new Vector2D(x, y);
+    }
+
     public Vector2D(double x, double y) {
         this.x = x;
         this.y = y;
-    }
-
-    public void add(Vector2D other) {
-        this.x += other.x;
-        this.y += other.y;
-    }
-
-    public void sub(Vector2D other) {
-        this.x -= other.x;
-        this.y -= other.y;
-    }
-
-    public void div(Vector2D other) {
-        this.x /= other.x;
-        this.y /= other.y;
-    }
-
-    public void mult(Vector2D other) {
-        this.x *= other.x;
-        this.y *= other.y;
     }
 
     public double getLength() {
         return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
     }
 
-    public Vector2D getUnit() {
-        double length = getLength();
-        x = this.x / length;
-        y = this.y / length;
-        return new Vector2D(x, y);
-    }
-
-    public void makeUnit() {
-        double length = getLength();
-        x = x / length;
-        y = y / length;
-    }
-
     public double getX() {
         return x;
-    }
-
-    public void setX(double x) {
-        this.x = x;
     }
 
     public double getY() {
         return y;
     }
 
-    public void setY(double y) {
-        this.y = y;
+    @Override
+    public String toString() {
+        return "Vector2D{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
     }
 
     @Override

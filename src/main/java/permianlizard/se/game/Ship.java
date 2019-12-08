@@ -10,10 +10,14 @@ public class Ship extends GameObject {
     public Ship(double x, double y) {
         super(ImageResource.getImage(ImageResource.SHIP), x, y);
         setCollisionRadius(getImage().getWidth() / 2);
-        setMass(100);
         setRotation(-90.0f);
+        setMass(100);
+        setDestructible(true);
+        setImpactResistance(1.0f);
+        setHealthMax(8);
+        setHealth(getHealthMax());
         this.rotationSpeed = 6.0f;
-        this.thrustForce = 100;
+        this.thrustForce = 20f;
     }
 
     public void onCollide(GameObject other) {

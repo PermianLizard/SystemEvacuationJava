@@ -8,7 +8,7 @@
 - scene/director [done]
 - clearing the screen [done]
 - asset loading [done]
-- drawing multiple objects efficiently
+- drawing multiple objects efficiently [done]
 - define game entity with anchor point for rotations [done]
 - sprites and animated sprite [done]
 - ship thrust animation [done]
@@ -18,18 +18,31 @@
 - font loading [done]
 - Game Object for all game entities [done]
 - collision detection [done]
-- draw order [done]6
-- fix stuttering ship graphic issue (ship sprite flickers and draws out of place) [done]
-- fix thrust graphic [done]
-- starfield [done]
-- vector2D object?
-- physics?
-- ship fuel hull condition, rescues + display
-- bases crew rescue/repair/refuel + display
+- draw order [done]
 - director width/height [done]
 - director bitKeySet [done]
-- camera
-- generate explosions
+- fix stuttering ship graphic issue (ship sprite flickers and draws out of place) [done -hackishly]
+- fix thrust graphic [done]
+- starfield [done]
+- vector2D object [done]
+- physics [done]
+- gravity wells [done]
+- physics collisions [done]
+- physics max speed [done]
+- explosion on destroy [done]
+- ship death [done]
+- gravity radius [done]
+- bug where multiple bodies messes up orbits [done]
+- impact resistance [done]
+- object health/damage [done]
+- pause
+- map view
+- planet names
+- meter bars
+- ship fuel hull condition, rescues + display
+- bases crew rescue/repair/refuel + display
+- camera?
+
 
 
 == packaging ==

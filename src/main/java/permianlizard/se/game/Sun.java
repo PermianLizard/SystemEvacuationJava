@@ -8,6 +8,8 @@ public class Sun extends GameObject {
         super(ImageResource.getImage(ImageResource.SUN), x, y);
         setCollisionRadius(getImage().getWidth() / 2);
         setMass(1280000);
+        setStaticObject(true);
+        setGravityRadius(800);
     }
 
     public void onCollide(GameObject other) {

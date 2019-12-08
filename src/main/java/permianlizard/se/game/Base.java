@@ -11,7 +11,10 @@ public class Base extends GameObject {
         super(ImageResource.getImage(ImageResource.BASE), x, y);
         setCollisionRadius(getImage().getWidth() / 2);
         setCollectionRadius(getImage().getWidth() * 2f);
-        setMass(300);
+        setMass(200);
+        setDestructible(true);
+        setHealthMax(15);
+        setHealth(getHealthMax());
     }
 
     public void onCollide(GameObject other) {
