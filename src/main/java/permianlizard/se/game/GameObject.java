@@ -42,7 +42,7 @@ public abstract class GameObject extends AnimatedSprite {
         this.collisionRadius = collisionRadius;
     }
 
-    public boolean collidesWith(GameObject other) {
+    /*public boolean collidesWith(GameObject other) {
         float thisCollisionRadius = getCollisionRadius();
         float otherCollisionRadius = other.getCollisionRadius();
 
@@ -59,7 +59,7 @@ public abstract class GameObject extends AnimatedSprite {
         double distance = MathUtil.distance(thisCenterX, thisCenterY, otherCenterX, otherCenterY);
 
         return distance < thisCollisionRadius + otherCollisionRadius;
-    }
+    }*/
 
     public abstract void onCollide(GameObject other);
 

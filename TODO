@@ -35,6 +35,7 @@
 - bug where multiple bodies messes up orbits [done]
 - impact resistance [done]
 - object health/damage [done]
+- game refactoring
 - pause
 - map view
 - planet names

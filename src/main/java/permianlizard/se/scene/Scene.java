@@ -25,6 +25,10 @@ public abstract class Scene {
 
     public abstract void onExit();
 
+    public abstract void onPause();
+
+    public abstract void onUnpause();
+
     public abstract void update(double delta);
 
     public abstract void render(Graphics2D g, int width, int height);

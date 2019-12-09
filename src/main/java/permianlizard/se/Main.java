@@ -89,8 +89,7 @@ public class Main implements Runnable {
         canvas.addKeyListener(director);
 
         GameScene gameScene = new GameScene("GameScene");
-        director.addScene(gameScene);
-        director.setScene(gameScene.getName());
+        director.pushScene(gameScene);
 
         long lastLoopTime = System.nanoTime();
         final long desiredDeltaLoop =  (1000 * 1000 * 1000) / FPS;

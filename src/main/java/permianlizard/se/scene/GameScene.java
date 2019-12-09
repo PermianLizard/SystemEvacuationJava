@@ -1,6 +1,8 @@
 package permianlizard.se.scene;
 
-import permianlizard.se.*;
+import permianlizard.se.FontResource;
+import permianlizard.se.ImageResource;
+import permianlizard.se.Starfield;
 import permianlizard.se.game.*;
 import permianlizard.se.sprite.AnimatedSprite;
 import permianlizard.se.sprite.Sprite;
@@ -13,7 +15,6 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 class TimedLabel {
     private String text;
@@ -51,34 +52,20 @@ class TimedLabel {
     }
 }
 
-public class GameScene extends Scene {
-
-    boolean gameOver;
+public class GameScene extends Scene implements GameEventListener {
 
     int screenCenterX;
     int screenCenterY;
     double cameraX;
     double cameraY;
 
-    Ship ship;
-    Sprite thrustSprite;
-    AnimatedSprite explosionSprite;
-    Asteroid asteroid;
-    MoonA moonA;
-    PlanetA planetA;
-    PlanetB planetB;
-    Sun sun;
+    private Sprite thrustSprite;
+    private AnimatedSprite explosionSprite;
 
-    Starfield starfield;
+    private Starfield starfield;
 
-    java.util.List<AnimatedSprite> explosionList;
-    java.util.List<Asteroid> asteroidList;
-    java.util.List<Base> baseList;
-    java.util.List<Planet> planetList;
-
-    java.util.List<GameObject> objectList;
-
-    java.util.List<TimedLabel> timedLabelList;
+    private java.util.List<AnimatedSprite> explosionList;
+    private java.util.List<TimedLabel> timedLabelList;
 
     public GameScene(String name) {
         super(name);
@@ -86,70 +73,23 @@ public class GameScene extends Scene {
 
     public void onEnter() {
 
-        gameOver = false;
+        Game game = Game.getInstance();
+        game.newGame();
+
+        game.addEventListener(this);
 
         Director director = getDirector();
         screenCenterX = director.getWidth() / 2;
         screenCenterY = director.getHeight() / 2;
 
         explosionList = new ArrayList<>();
-        asteroidList = new ArrayList<>();
-        baseList = new ArrayList<>();
-        planetList = new ArrayList<>();
-
-        objectList = new ArrayList<>();
-
         timedLabelList = new ArrayList<>();
-
-        ship = new Ship(500, 0);
-        objectList.add(ship);
 
         BufferedImage[] anim = ImageResource.getAnimation(ImageResource.THRUST);
         thrustSprite = new AnimatedSprite(anim, 0, 0, 2, true);
         thrustSprite.setVisible(false);
 
-        //anim = ImageResource.getAnimation(ImageResource.EXPLOSION);
-        //explosionSprite = new AnimatedSprite(anim, 400, 150, 8, true);
-        //explosionSprite.setRotation(45.0f);
-        //explosionList.add(explosionSprite);
-
-        asteroid = new Asteroid(600, -250);
-        asteroidList.add(asteroid);
-        objectList.add(asteroid);
-
-        /*Base base = new Base(80, 25);
-        baseList.add(base);
-        objectList.add(base);
-
-        base = new Base(200, 25);
-        baseList.add(base);
-        objectList.add(base);
-
-        base = new Base(80, 150);
-        baseList.add(base);
-        objectList.add(base);
-
-        base = new Base(200, 150);
-        baseList.add(base);
-        objectList.add(base);
-
-        //moonA = new MoonA(600, 250);
-        //planetList.add(moonA);
-        //objectList.add(moonA);
-
-        planetA = new PlanetA(400, 250);
-        planetList.add(planetA);
-        objectList.add(planetA);
-
-        planetB = new PlanetB(200, 250);
-        planetList.add(planetB);
-        objectList.add(planetB);*/
-
-        sun = new Sun(0, 0);
-        objectList.add(sun);
-
-        setOrbit(ship, sun, 400, 0, false);
-        setOrbit(asteroid, sun, 600, -10, false);
+        Ship ship = game.getShip();
 
         // FIXME
         cameraX = ship.getX();
@@ -160,220 +100,34 @@ public class GameScene extends Scene {
     }
 
     public void onExit() {
+        Game game = Game.getInstance();
+        game.cleanup();
+        game.removeEventListener(this);
+    }
+
+    @Override
+    public void onPause() {
+
+    }
+
+    @Override
+    public void onUnpause() {
 
     }
 
     @Override
     public void update(double delta) {
 
-        sun.update(delta);
+        Game game = Game.getInstance();
+        game.update(delta);
 
-        for (Planet planet : planetList) {
-            planet.update(delta);
-        }
-
-        for (Base base : baseList) {
-            base.update(delta);
-        }
-
-        for (Asteroid asteroid : asteroidList) {
-            asteroid.update(delta);
+        if (!game.isGameOver()) {
+            thrustSprite.update(delta);
         }
 
         for (Sprite explosion : explosionList) {
             explosion.update(delta);
         }
-
-        if (!gameOver) {
-
-            thrustSprite.update(delta);
-            ship.update(delta);
-
-            // check base collection
-            float shipCollisionRadius = ship.getCollisionRadius();
-            for (Base base : baseList) {
-
-                if (base.isVisited()) {
-                    continue;
-                }
-
-                float collectionRadius = base.getCollectionRadius();
-                double distance = MathUtil.distance(ship.getX(), ship.getY(), base.getX(), base.getY());
-                if (distance < shipCollisionRadius + collectionRadius) {
-                    base.visit();
-                    timedLabelList.add(new TimedLabel("Fuel 000", ship.getX() + 36, ship.getY(), 200));
-                }
-            }
-        }
-
-        // apply gravity
-        for (int a = 0; a < objectList.size() - 1; a++) {
-            GameObject objectA = objectList.get(a);
-
-            double aCenterPosX = objectA.getX() + objectA.getAnchorX();
-            double aCenterPosY = objectA.getY() + objectA.getAnchorY();
-
-            for (int b = a + 1; b < objectList.size(); b++) {
-                GameObject objectB = objectList.get(b);
-                float objectBCollisionRadius = objectB.getCollisionRadius();
-                if (objectBCollisionRadius <= 0) {
-                    continue;
-                }
-                double bCenterPosX = objectB.getX() + objectB.getAnchorX();
-                double bCenterPosY = objectB.getY() + objectB.getAnchorY();
-
-                double distance = MathUtil.distance(aCenterPosX, aCenterPosY, bCenterPosX, bCenterPosY);
-
-                float aGravityRadius = objectA.getGravityRadius();
-                float bGravityRadius = objectB.getGravityRadius();
-
-                Vector2D aCenterPos = new Vector2D(aCenterPosX, aCenterPosY);
-                Vector2D bCenterPos = new Vector2D(bCenterPosX, bCenterPosY);
-
-                double gravForce = (MathUtil.GRAVITY_CONSTANT * objectA.getMass() * objectB.getMass()) / Math.pow(distance, 2);
-
-                if (!objectA.isStaticObject() && distance < bGravityRadius) {
-                    Vector2D gravVectorB = Vector2D.getUnit(Vector2D.sub(bCenterPos, aCenterPos));
-                    gravVectorB = Vector2D.mult(Vector2D.mult(gravVectorB, gravForce), delta);
-                    objectA.applyForce(gravVectorB.getX(), gravVectorB.getY());
-                }
-
-                if (!objectB.isStaticObject() && distance < aGravityRadius) {
-                    Vector2D gravVectorA = Vector2D.getUnit(Vector2D.sub(aCenterPos, bCenterPos));
-                    gravVectorA = Vector2D.mult(Vector2D.mult(gravVectorA, gravForce), delta);
-                    objectB.applyForce(gravVectorA.getX(), gravVectorA.getY());
-                }
-            }
-        }
-
-        // resolve collisions
-        for (int a = 0; a < objectList.size() - 1; a++) {
-            GameObject objectA = objectList.get(a);
-            float objectACollisionRadius = objectA.getCollisionRadius();
-            if (objectACollisionRadius <= 0) {
-                continue;
-            }
-            double aCenterPosX = objectA.getX() + objectA.getAnchorX();
-            double aCenterPosY = objectA.getY() + objectA.getAnchorY();
-
-            for (int b = a + 1; b < objectList.size(); b++) {
-                GameObject objectB = objectList.get(b);
-                float objectBCollisionRadius = objectB.getCollisionRadius();
-                if (objectBCollisionRadius <= 0) {
-                    continue;
-                }
-                double bCenterPosX = objectB.getX() + objectB.getAnchorX();
-                double bCenterPosY = objectB.getY() + objectB.getAnchorY();
-
-                double collisionDistance = objectACollisionRadius + objectBCollisionRadius;
-                double distance = MathUtil.distance(aCenterPosX, aCenterPosY, bCenterPosX, bCenterPosY);
-
-                if (distance < collisionDistance) {
-
-                    double overlap = collisionDistance - distance;
-
-                    // resolve collision
-                    double dirX = bCenterPosX - aCenterPosX;
-                    double dirY = bCenterPosY - aCenterPosY;
-                    Vector2D dir = new Vector2D(dirX, dirY);
-
-                    Vector2D aCenterPos = new Vector2D(aCenterPosX, aCenterPosY);
-                    Vector2D bCenterPos = new Vector2D(bCenterPosX, bCenterPosY);
-
-                    if (objectA.isStaticObject() && !objectA.isStaticObject()) {
-                        dir = Vector2D.setLength(dir, overlap);
-                        dir = Vector2D.mult(dir, 2);
-                        bCenterPos = Vector2D.add(bCenterPos, dir);
-
-                    } else if (!objectA.isStaticObject() && objectB.isStaticObject()) {
-                        dir = Vector2D.setLength(dir, overlap);
-                        dir = Vector2D.mult(dir, 2);
-                        aCenterPos = Vector2D.sub(aCenterPos, dir);
-
-                    } else {
-                        dir = Vector2D.setLength(dir, overlap / 2);
-                        dir = Vector2D.mult(dir, 2);
-                        aCenterPos = Vector2D.sub(aCenterPos, dir);
-                        bCenterPos = Vector2D.add(bCenterPos, dir);
-                    }
-
-                    objectA.setX(aCenterPos.getX() - objectA.getAnchorX());
-                    objectA.setY(aCenterPos.getY() - objectA.getAnchorY());
-
-                    objectB.setX(bCenterPos.getX() - objectB.getAnchorX());
-                    objectB.setY(bCenterPos.getY() - objectB.getAnchorY());
-
-                    Vector2D objectBContactPoint = MathUtil.getCircleClosestPoint(aCenterPos, bCenterPos, objectBCollisionRadius);
-                    Vector2D normal = Vector2D.getUnit(Vector2D.sub(objectBContactPoint, bCenterPos));
-                    //System.out.println("normal = " + normal);
-
-                    Vector2D objectAIncidence = new Vector2D(objectA.getVelX(), objectA.getVelY());
-                    Vector2D objectBIncidence = new Vector2D(objectB.getVelX(), objectB.getVelY());
-                    Vector2D incidence = Vector2D.sub(objectAIncidence, objectBIncidence);
-
-                    double massTotal = objectA.getMass() + objectB.getMass();
-                    double c1 = objectA.getMass() / massTotal;
-                    double c2 = objectB.getMass() / massTotal;
-
-                    double dotProd = Vector2D.dot(incidence, normal);
-                    Vector2D result =  Vector2D.sub(incidence, Vector2D.mult(normal, dotProd * 2));
-                    //System.out.println("result: " + result);
-
-                    double impactSize = Vector2D.sub(objectBIncidence, objectAIncidence).getLength();
-                    System.out.println("impact size: " + impactSize);
-
-                    double angle = Math.abs(Vector2D.getAngleBetween(result, normal));
-                    //System.out.println("angle: " + angle);
-
-                    Vector2D objectARefelection = Vector2D.mult(result, c2);
-                    Vector2D objectBRefelection = Vector2D.mult(Vector2D.mult(result, -1), c1);
-                    //System.out.println("objectARefelection: " + objectARefelection + " objectBRefelection: " + objectBRefelection);
-
-                    objectA.setVelX(objectARefelection.getX());
-                    objectA.setVelY(objectARefelection.getY());
-
-                    objectB.setVelX(objectBRefelection.getX());
-                    objectB.setVelY(objectBRefelection.getY());
-
-                    GameObject[] objectsArr = {objectA, objectB};
-                    for (GameObject object : objectsArr) {
-                        if(object.isDestructible()) {
-                            if (impactSize > object.getImpactResistance()) {
-                                destroyObject(object);
-                            } else {
-                                damageObject(object, impactSize);
-                            }
-                        }
-                    }
-               }
-            }
-        }
-
-        // update physics
-        for (GameObject object : objectList) {
-
-            if (object.isStaticObject()) {
-                continue;
-            }
-
-            double velX = object.getVelX();
-            double velY = object.getVelY();
-
-            Vector2D vel = new Vector2D(velX, velY);
-            if (vel.getLength() > MathUtil.SPEED_LIMIT) {
-                vel = Vector2D.setLength(vel, MathUtil.SPEED_LIMIT);
-            }
-
-            vel = Vector2D.mult(vel, delta);
-
-            object.translate(vel.getX(), vel.getY());
-        }
-
-        /*if (objectA.collidesWith(objectB)) {
-                    // handle collision
-                    objectA.onCollide(objectB);
-                    objectB.onCollide(objectA);
-                }*/
 
         List<AnimatedSprite> explosionsToRemove = new ArrayList<>(explosionList.size());
         for (AnimatedSprite explosion : explosionList) {
@@ -401,10 +155,14 @@ public class GameScene extends Scene {
     @Override
     public void render(Graphics2D g, int width, int height) {
 
+        Game game = Game.getInstance();
+
         double shipX = cameraX;
         double shipY = cameraY;
 
-        if (!gameOver) {
+        if (!game.isGameOver()) {
+            Ship ship = game.getShip();
+
             shipX = ship.getX();
             shipY = ship.getY();
 
@@ -414,17 +172,17 @@ public class GameScene extends Scene {
 
         starfield.render(g, cameraX, cameraY);
 
-        drawSprite(g, sun, shipX, shipY, width, height);
+        drawSprite(g, game.getSun(), shipX, shipY, width, height);
 
-        for (Planet planet : planetList) {
+        for (Planet planet : game.getPlanetList()) {
             drawSprite(g, planet, shipX, shipY, width, height);
         }
 
-        for (Base base : baseList) {
+        for (Base base : game.getBaseList()) {
             drawSprite(g, base, shipX, shipY, width, height);
         }
 
-        for (Asteroid asteroid : asteroidList) {
+        for (Asteroid asteroid : game.getAsteroidList()) {
             drawSprite(g, asteroid, shipX, shipY, width, height);
         }
 
@@ -432,7 +190,7 @@ public class GameScene extends Scene {
             drawSprite(g, explosion, shipX, shipY, width, height);
         }
 
-        if (!gameOver) {
+        if (!game.isGameOver()) {
             drawShip(g);
         }
 
@@ -458,26 +216,39 @@ public class GameScene extends Scene {
     }
 
     @Override
+    public void onBaseVisit(Base base) {
+        timedLabelList.add(new TimedLabel("Fuel 000", base.getX() + 36, base.getY(), 200));
+    }
+
+    @Override
+    public void onDestroyObject(GameObject object) {
+        addExplosion(object.getX(), object.getY());
+    }
+
+    @Override
     public void keyTyped(KeyEvent e) {
 
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
+        Game game = Game.getInstance();
+        Ship ship = game.getShip();
+
         int keyCode = e.getKeyCode();
 
         if (keyCode == 65) { // a
 
-            if (!gameOver) {
+            if (!game.isGameOver()) {
                 ship.rotateLeft();
             }
         } else if (keyCode == 68) { // d
-            if (!gameOver) {
+            if (!game.isGameOver()) {
                 ship.rotateRight();
             }
         } else if (keyCode == 87) { // w
 
-            if (!gameOver) {
+            if (!game.isGameOver()) {
                 float rotationInDegrees = ship.getRotation();
                 float thrustForce = ship.getThrustForce();
                 double rotationInRadians = Math.toRadians(rotationInDegrees);
@@ -496,9 +267,11 @@ public class GameScene extends Scene {
 
     @Override
     public void keyReleased(KeyEvent e) {
+        Game game = Game.getInstance();
+
         int keyCode = e.getKeyCode();
         if (keyCode == 87) { // w
-            if (!gameOver) {
+            if (!game.isGameOver()) {
                 thrustSprite.setVisible(false);
             }
         }
@@ -539,34 +312,6 @@ public class GameScene extends Scene {
 
     }
 
-    private void damageObject(GameObject object, double amount) {
-        System.out.println("damage: " + amount);
-        float health = object.getHealth();
-        health -= amount;
-        if (health <= 0) {
-            object.setHealth(0);
-            destroyObject(object);
-        } else {
-            object.setHealth(health);
-        }
-    }
-
-    private void destroyObject(GameObject object) {
-        objectList.remove(object);
-
-        if (object instanceof Ship) {
-            gameOver = true;
-            ship = null;
-            thrustSprite = null;
-        } else if (object instanceof Asteroid) {
-            asteroidList.remove(object);
-        } else if (object instanceof Base) {
-            baseList.remove(object);
-        }
-
-        addExplosion(object.getX(), object.getY());
-    }
-
     private void addExplosion(double x, double y) {
         BufferedImage[] anim = ImageResource.getAnimation(ImageResource.EXPLOSION);
         explosionSprite = new AnimatedSprite(anim, x, y, 8, false);
@@ -574,7 +319,7 @@ public class GameScene extends Scene {
         explosionList.add(explosionSprite);
     }
 
-    private void setOrbit(GameObject objectA, GameObject objectB, double distance, double angleInDegrees, boolean clockwise) {
+    /*private void setOrbit(GameObject objectA, GameObject objectB, double distance, double angleInDegrees, boolean clockwise) {
 
         double radians = Math.toRadians(angleInDegrees);
         double x = objectB.getX() + objectB.getAnchorX() - objectA.getAnchorX() + distance * Math.cos(radians);
@@ -606,7 +351,7 @@ public class GameScene extends Scene {
 
         objectA.setVelX(orbitVec.getX());
         objectA.setVelY(orbitVec.getY());
-    }
+    }*/
 
     private void drawSprite(Graphics2D g, Sprite sprite, double x, double y, int width, int height) {
         if (!sprite.isVisible()) {
@@ -693,6 +438,9 @@ public class GameScene extends Scene {
     }
 
     private void drawShip(Graphics2D g) {
+        Game game = Game.getInstance();
+        Ship ship = game.getShip();
+
         if (!ship.isVisible()) {
             return;
         }
