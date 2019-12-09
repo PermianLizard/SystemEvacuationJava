@@ -55,6 +55,15 @@ public class Vector2D {
         return new Vector2D(x, y);
     }
 
+    public static Vector2D rotate(Vector2D v,  double angleInDegrees) {
+        double radians = Math.toRadians(angleInDegrees);
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+        double x = v.x * cos - v.y * sin;
+        double y = v.x * sin - v.y * cos;
+        return new Vector2D(x, y);
+    }
+
     public Vector2D(double x, double y) {
         this.x = x;
         this.y = y;

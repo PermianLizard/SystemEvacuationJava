@@ -10,7 +10,7 @@ public class Sun extends GameObject {
         setMass(1280000);
         setStaticObject(true);
         setDestructible(false);
-        setGravityRadius(800);
+        setGravityRadius(500);
     }
 
     public void onCollide(GameObject other) {

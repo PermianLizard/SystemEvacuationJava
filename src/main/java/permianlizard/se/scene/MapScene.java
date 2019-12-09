@@ -1,8 +1,7 @@
 package permianlizard.se.scene;
 
-import permianlizard.se.game.Game;
-import permianlizard.se.game.Planet;
-import permianlizard.se.game.Sun;
+import permianlizard.se.Vector2D;
+import permianlizard.se.game.*;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -11,6 +10,12 @@ import java.awt.event.MouseEvent;
 public class MapScene extends Scene {
 
     public static double SCALE = 0.04;
+    public static int TOKEN_SIZE = 50;
+    private final static Stroke DASHED_STROKE;
+
+    static {
+        DASHED_STROKE = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
+    }
 
     public MapScene() {
         super("MAP_SCENE");
@@ -43,15 +48,16 @@ public class MapScene extends Scene {
 
     @Override
     public void render(Graphics2D g, int width, int height) {
+        g = (Graphics2D) g.create();
 
         int screenCenterX = width / 2;
         int screenCenterY = height / 2;
 
+        // draw grid
         g.setColor(new Color(0, 0, 80));
         for (int x = 50; x < width; x += 50) {
             g.drawLine(x, 0, x, height);
         }
-
         for (int y = 50; y < height; y += 50) {
             g.drawLine(0, y, width, y);
         }
@@ -59,7 +65,6 @@ public class MapScene extends Scene {
         Game game = Game.getInstance();
 
         Sun sun = game.getSun();
-
         g.setColor(new Color(220, 220, 220));
         int cx = (int)(sun.getX() * SCALE) + screenCenterX;
         int cy = (int)(sun.getY() * SCALE) + screenCenterY;
@@ -68,6 +73,23 @@ public class MapScene extends Scene {
         g.fillOval(cx, cy, cw, ch);
 
         java.util.List<Planet> planetList = game.getPlanetList();
+
+        g.setStroke(DASHED_STROKE);
+        g.setColor(new Color(128, 128, 128));
+        for (Planet planet : planetList) {
+            cx = (int)((planet.getX() + planet.getAnchorX()) * SCALE);
+            cy = (int)((planet.getY() + planet.getAnchorX()) * SCALE);
+
+            Vector2D v = new Vector2D(cx, cy);
+            int radius = (int)v.getLength();
+            int diameter = radius * 2;
+
+            int x = screenCenterX - radius;
+            int y = screenCenterY - radius;
+            g.drawOval(x, y, diameter, diameter);
+        }
+
+        g.setColor(new Color(204, 204, 204));
         for (Planet planet : planetList) {
             cx = (int)(planet.getX() * SCALE) + screenCenterX;
             cy = (int)(planet.getY() * SCALE) + screenCenterY;
@@ -75,6 +97,36 @@ public class MapScene extends Scene {
             ch = (int)(planet.getHeight() * SCALE);
             g.fillOval(cx, cy, cw, ch);
         }
+
+        java.util.List<Moon> moonList = game.getMoonList();
+        for (Moon moon : moonList) {
+            cx = (int)(moon.getX() * SCALE) + screenCenterX;
+            cy = (int)(moon.getY() * SCALE) + screenCenterY;
+            cw = (int)(TOKEN_SIZE * SCALE);
+            ch = (int)(TOKEN_SIZE * SCALE);
+            g.fillOval(cx, cy, cw, ch);
+        }
+
+        java.util.List<Base> baseList = game.getBaseList();
+        g.setColor(Color.GREEN);
+        for (Base base : baseList) {
+            cx = (int)(base.getX() * SCALE) + screenCenterX;
+            cy = (int)(base.getY() * SCALE) + screenCenterY;
+            cw = (int)(TOKEN_SIZE * SCALE);
+            ch = (int)(TOKEN_SIZE * SCALE);
+            g.fillOval(cx, cy, cw, ch);
+        }
+
+        // show player position
+        Ship ship = game.getShip();
+        g.setColor(Color.RED);
+        cx = (int)(ship.getX() * SCALE) + screenCenterX;
+        cy = (int)(ship.getY() * SCALE) + screenCenterY;
+        cw = (int)(TOKEN_SIZE * SCALE);
+        ch = (int)(TOKEN_SIZE * SCALE);
+        g.fillOval(cx, cy, cw, ch);
+
+        g.dispose();
     }
 
     @Override

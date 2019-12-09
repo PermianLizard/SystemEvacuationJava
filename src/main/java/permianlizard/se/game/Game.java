@@ -5,6 +5,8 @@ import permianlizard.se.Vector2D;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class Game {
 
@@ -20,10 +22,6 @@ public class Game {
     boolean gameOver;
 
     private Ship ship;
-    private Asteroid asteroid;
-    private MoonA moonA;
-    private PlanetA planetA;
-    private PlanetB planetB;
     private Sun sun;
 
     private List<GameObject> objectList;
@@ -55,52 +53,7 @@ public class Game {
         planetList = new ArrayList<>();
         moonList = new ArrayList<>();
 
-        /*Base base = new Base(80, 25);
-        baseList.add(base);
-        objectList.add(base);
-
-        base = new Base(200, 25);
-        baseList.add(base);
-        objectList.add(base);
-
-        base = new Base(80, 150);
-        baseList.add(base);
-        objectList.add(base);
-
-        base = new Base(200, 150);
-        baseList.add(base);
-        objectList.add(base);
-
-        //moonA = new MoonA(600, 250);
-        //planetList.add(moonA);
-        //objectList.add(moonA);
-
-        planetA = new PlanetA(400, 250);
-        planetList.add(planetA);
-        objectList.add(planetA);
-
-        planetB = new PlanetB(200, 250);
-        planetList.add(planetB);
-        objectList.add(planetB);*/
-
-        sun = new Sun(0, 0);
-        sun.setX(-sun.getAnchorX());
-        sun.setY(-sun.getAnchorY());
-        objectList.add(sun);
-
-        moonA = new MoonA(0, 0);
-        moonList.add(moonA);
-        objectList.add(moonA);
-        setOrbit(moonA, sun, 750, 0, false);
-
-        ship = new Ship();
-        objectList.add(ship);
-        setOrbit(ship, sun, 500, 0, false);
-
-        asteroid = new Asteroid();
-        asteroidList.add(asteroid);
-        objectList.add(asteroid);
-        setOrbit(asteroid, sun, 600, -10, false);
+        generateSystem();
     }
 
     public void cleanup() {
@@ -358,6 +311,36 @@ public class Game {
         return moonList;
     }
 
+    private void setSun(Sun sun) {
+        this.sun = sun;
+        objectList.add(sun);
+    }
+
+    private void setShip(Ship ship) {
+        this.ship = ship;
+        objectList.add(ship);
+    }
+
+    private void addPlanet(Planet planet) {
+        planetList.add(planet);
+        objectList.add(planet);
+    }
+
+    private void addMoon(Moon moon) {
+        moonList.add(moon);
+        objectList.add(moon);
+    }
+
+    private void addAsteroid(Asteroid asteroid) {
+        asteroidList.add(asteroid);
+        objectList.add(asteroid);
+    }
+
+    private void addBase(Base base) {
+        baseList.add(base);
+        objectList.add(base);
+    }
+
     private void damageObject(GameObject object, double amount) {
         System.out.println("damage: " + amount);
         float health = object.getHealth();
@@ -419,5 +402,76 @@ public class Game {
 
         objectA.setVelX(orbitVec.getX());
         objectA.setVelY(orbitVec.getY());
+    }
+
+    private void generateSystem() {
+
+        Random random = new Random();
+
+        Sun sun = new Sun(0, 0);
+        sun.setX(-sun.getAnchorX());
+        sun.setY(-sun.getAnchorY());
+        setSun(sun);
+
+        Ship ship = new Ship();
+        setShip(ship);
+        setOrbit(ship, sun, 375, 0, false);
+
+        double memberPadding = 1200;
+        double distance = 0;
+        int numPlanets = 7;
+
+        List<Integer> planetAngleList = new ArrayList<>();
+        for (int angle = 0; angle < 360; angle += 40) {
+            planetAngleList.add(angle);
+        }
+
+        List<Integer> satelliteAngleList = new ArrayList<>();
+        satelliteAngleList.add(0);
+        satelliteAngleList.add(90);
+        satelliteAngleList.add(180);
+        satelliteAngleList.add(270);
+
+        int angle = 0;
+        int index = 0;
+
+        for (int i = 0; i < numPlanets; i++) {
+            distance += memberPadding;
+
+            Vector2D planetPos = new Vector2D(0, distance);
+            angle = planetAngleList.get(random.nextInt(planetAngleList.size()));
+            planetPos = Vector2D.rotate(planetPos, angle);
+
+            Planet planet = null;
+            if (random.nextBoolean()) {
+                planet = new PlanetA(planetPos.getX(), planetPos.getY());
+            } else {
+                planet = new PlanetB(planetPos.getX(), planetPos.getY());
+            }
+
+            addPlanet(planet);
+
+            List<Integer> angleOptions = new ArrayList<>(satelliteAngleList);
+            index = random.nextInt(angleOptions.size());
+            angle = angleOptions.get(index);
+            angleOptions.remove(index);
+
+            // base
+            Base base = new Base(0, 0);
+            addBase(base);
+            setOrbit(base, planet, 375, angle, false);
+
+            // moons
+            // select 0-3 moons
+            int numMoons = random.nextInt(4);
+            for (int m=0; m < numMoons; m++) {
+                Moon moonA = new MoonA(0, 0);
+                addMoon(moonA);
+                index = random.nextInt(angleOptions.size());
+                angle = angleOptions.get(index);
+                angleOptions.remove(index);
+                setOrbit(moonA, planet, 375, angle, false);
+            }
+        }
     }
 }

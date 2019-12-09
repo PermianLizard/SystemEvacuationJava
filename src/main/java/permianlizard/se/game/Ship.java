@@ -12,6 +12,7 @@ public class Ship extends GameObject {
         setCollisionRadius(getImage().getWidth() / 2);
         setRotation(-90.0f);
         setMass(100);
+        setStaticObject(true); // FIXME Temporary
         setDestructible(true);
         setImpactResistance(1.0f);
         setHealthMax(8);

@@ -38,15 +38,21 @@
 - Refactoring from GameScene into Game [done]
 - Changed how Director to Stack behavior [done]
 - GameEventListener [done]
-- pause
-- map view
+- Re-added moons [done]
+- Fixed collision reflection issue [done]
+
+- map view [done]
+- generate system [done]
+
+- pause and screen greyout
+- bases crew rescue/repair/refuel + display
+- navigation UI
 - planet names
+- asteroids
 - meter bars
 - ship fuel hull condition, rescues + display
-- bases crew rescue/repair/refuel + display
-- camera?
-
-
+- game timers
+- menu/ instructions scenes
 
 == packaging ==
 - executable jar [done]

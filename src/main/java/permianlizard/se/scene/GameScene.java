@@ -261,9 +261,9 @@ public class GameScene extends Scene implements GameEventListener {
                 double rotationInRadians = Math.toRadians(rotationInDegrees);
                 double tx = Math.cos(rotationInRadians) * thrustForce;
                 double ty = Math.sin(rotationInRadians) * thrustForce;
+                //ship.applyForce(tx, ty);
 
-                ship.applyForce(tx, ty);
-                //ship.translate(tx, ty);
+                ship.translate(tx, ty); // FIXME temporary
                 //thrustSprite.translate(tx, ty);
                 thrustSprite.setVisible(true);
             }
