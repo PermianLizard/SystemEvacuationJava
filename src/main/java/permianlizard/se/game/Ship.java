@@ -20,6 +20,10 @@ public class Ship extends GameObject {
         this.thrustForce = 20f;
     }
 
+    public Ship() {
+        this(0, 0);
+    }
+
     public void onCollide(GameObject other) {
 
     }

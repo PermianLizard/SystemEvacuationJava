@@ -35,7 +35,9 @@
 - bug where multiple bodies messes up orbits [done]
 - impact resistance [done]
 - object health/damage [done]
-- game refactoring
+- Refactoring from GameScene into Game [done]
+- Changed how Director to Stack behavior [done]
+- GameEventListener [done]
 - pause
 - map view
 - planet names

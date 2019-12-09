@@ -319,40 +319,6 @@ public class GameScene extends Scene implements GameEventListener {
         explosionList.add(explosionSprite);
     }
 
-    /*private void setOrbit(GameObject objectA, GameObject objectB, double distance, double angleInDegrees, boolean clockwise) {
-
-        double radians = Math.toRadians(angleInDegrees);
-        double x = objectB.getX() + objectB.getAnchorX() - objectA.getAnchorX() + distance * Math.cos(radians);
-        double y = objectB.getY() + objectB.getAnchorY() - objectA.getAnchorY() + distance * Math.sin(radians);
-
-        objectA.setX(x);
-        objectA.setY(y);
-
-        double aCenterPosX = objectA.getX() + objectA.getAnchorX();
-        double aCenterPosY = objectA.getY() + objectA.getAnchorY();
-
-        double bCenterPosX = objectB.getX() + objectB.getAnchorX();
-        double bCenterPosY = objectB.getY() + objectB.getAnchorY();
-
-        Vector2D aCenterPos = new Vector2D(aCenterPosX, aCenterPosY);
-        Vector2D bCenterPos = new Vector2D(bCenterPosX, bCenterPosY);
-
-        Vector2D gravVec = Vector2D.getUnit(Vector2D.sub(aCenterPos, bCenterPos));
-        Vector2D orbitVec = new Vector2D(gravVec.getY(), gravVec.getX());
-
-        if (clockwise) {
-            orbitVec = new Vector2D(-orbitVec.getX(), orbitVec.getY());
-        } else {
-            orbitVec = new Vector2D(orbitVec.getX(), -orbitVec.getY());
-        }
-
-        double mag = Math.sqrt((MathUtil.GRAVITY_CONSTANT * objectB.getMass()) / distance);
-        orbitVec = Vector2D.mult(orbitVec, mag);
-
-        objectA.setVelX(orbitVec.getX());
-        objectA.setVelY(orbitVec.getY());
-    }*/
-
     private void drawSprite(Graphics2D g, Sprite sprite, double x, double y, int width, int height) {
         if (!sprite.isVisible()) {
             return;
@@ -464,7 +430,7 @@ public class GameScene extends Scene implements GameEventListener {
             translateToRotate = AffineTransform.getTranslateInstance(-thrustSprite.getAnchorX(), -thrustSprite.getAnchorY());
             rotateObject = AffineTransform.getRotateInstance(Math.toRadians(ship.getRotation()), 0, 0);
             translateToDraw = AffineTransform.getTranslateInstance(thrustSprite.getAnchorX(), thrustSprite.getAnchorY());
-            translateWorld = AffineTransform.getTranslateInstance(screenCenterX - 6, screenCenterY - 6); // FIXME
+            translateWorld = AffineTransform.getTranslateInstance(screenCenterX - 5, screenCenterY - 5); // FIXME
 
             rotateObject.concatenate(translateToRotate);
             translateToDraw.concatenate(rotateObject);

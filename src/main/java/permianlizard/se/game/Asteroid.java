@@ -14,6 +14,10 @@ public class Asteroid extends GameObject {
         setHealth(getHealthMax());
     }
 
+    public Asteroid() {
+        this(0, 0);
+    }
+
     public void onCollide(GameObject other) {
 
     }

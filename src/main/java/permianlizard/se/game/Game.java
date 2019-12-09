@@ -53,13 +53,6 @@ public class Game {
         baseList = new ArrayList<>();
         planetList = new ArrayList<>();
 
-        ship = new Ship(500, 0);
-        objectList.add(ship);
-
-        asteroid = new Asteroid(600, -250);
-        asteroidList.add(asteroid);
-        objectList.add(asteroid);
-
         /*Base base = new Base(80, 25);
         baseList.add(base);
         objectList.add(base);
@@ -89,7 +82,16 @@ public class Game {
         objectList.add(planetB);*/
 
         sun = new Sun(0, 0);
+        sun.setX(-sun.getAnchorX());
+        sun.setY(-sun.getAnchorY());
         objectList.add(sun);
+
+        ship = new Ship();
+        objectList.add(ship);
+
+        asteroid = new Asteroid();
+        asteroidList.add(asteroid);
+        objectList.add(asteroid);
 
         setOrbit(ship, sun, 400, 0, false);
         setOrbit(asteroid, sun, 600, -10, false);

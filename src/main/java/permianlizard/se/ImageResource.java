@@ -14,7 +14,6 @@ public class ImageResource {
 
     public static Path IMAGES_PATH = Paths.get("resources", "images");
 
-    public static final String ARROW = "Arrow.png";
     public static final String SHIP = "ship.png";
     public static final String EXPLOSION = "explosion.png";
     public static final String THRUST = "thrust.png";
@@ -25,7 +24,7 @@ public class ImageResource {
     public static final String PLANET_64_2 = "p64_2.png";
     public static final String SUN = "sun.png";
 
-    private static final String[] IMAGE_FILES = {ARROW, SHIP, EXPLOSION, THRUST, ASTEROID,
+    private static final String[] IMAGE_FILES = {SHIP, EXPLOSION, THRUST, ASTEROID,
             BASE, MOON_48_1, PLANET_64_1, PLANET_64_2, SUN
     };
 
