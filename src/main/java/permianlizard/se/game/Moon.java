@@ -7,6 +7,8 @@ public abstract class Moon extends GameObject {
     public Moon(BufferedImage image, double x, double y) {
         super(image, x, y);
         setMass(640000);
+        //setStaticObject(true);
+        setDestructible(false);
         setGravityRadius(300);
     }
 

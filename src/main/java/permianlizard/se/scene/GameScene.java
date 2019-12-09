@@ -67,8 +67,12 @@ public class GameScene extends Scene implements GameEventListener {
     private java.util.List<AnimatedSprite> explosionList;
     private java.util.List<TimedLabel> timedLabelList;
 
-    public GameScene(String name) {
-        super(name);
+    private MapScene mapScene;
+
+    public GameScene() {
+        super("GAME_SCENE");
+
+        mapScene = new MapScene();
     }
 
     public void onEnter() {
@@ -178,6 +182,10 @@ public class GameScene extends Scene implements GameEventListener {
             drawSprite(g, planet, shipX, shipY, width, height);
         }
 
+        for (Moon moon : game.getMoonList()) {
+            drawSprite(g, moon, shipX, shipY, width, height);
+        }
+
         for (Base base : game.getBaseList()) {
             drawSprite(g, base, shipX, shipY, width, height);
         }
@@ -227,7 +235,6 @@ public class GameScene extends Scene implements GameEventListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
-
     }
 
     @Override
@@ -262,6 +269,8 @@ public class GameScene extends Scene implements GameEventListener {
             }
         } else if (keyCode == 83) { // s
 
+        } else if (keyCode == 16) { // shift
+            this.director.pushScene(mapScene);
         }
     }
 

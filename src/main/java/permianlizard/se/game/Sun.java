@@ -9,6 +9,7 @@ public class Sun extends GameObject {
         setCollisionRadius(getImage().getWidth() / 2);
         setMass(1280000);
         setStaticObject(true);
+        setDestructible(false);
         setGravityRadius(800);
     }
 

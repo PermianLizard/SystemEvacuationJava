@@ -8,6 +8,7 @@ public abstract class Planet extends GameObject {
         super(image, x, y);
         setMass(240000);
         setStaticObject(true);
+        setDestructible(false);
         setGravityRadius(500);
     }
 

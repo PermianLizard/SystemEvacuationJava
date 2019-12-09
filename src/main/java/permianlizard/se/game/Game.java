@@ -30,6 +30,7 @@ public class Game {
     private List<Asteroid> asteroidList;
     private List<Base> baseList;
     private List<Planet> planetList;
+    private List<Moon> moonList;
 
     private List<GameEventListener> eventListenersList;
 
@@ -52,6 +53,7 @@ public class Game {
         asteroidList = new ArrayList<>();
         baseList = new ArrayList<>();
         planetList = new ArrayList<>();
+        moonList = new ArrayList<>();
 
         /*Base base = new Base(80, 25);
         baseList.add(base);
@@ -86,14 +88,18 @@ public class Game {
         sun.setY(-sun.getAnchorY());
         objectList.add(sun);
 
+        moonA = new MoonA(0, 0);
+        moonList.add(moonA);
+        objectList.add(moonA);
+        setOrbit(moonA, sun, 750, 0, false);
+
         ship = new Ship();
         objectList.add(ship);
+        setOrbit(ship, sun, 500, 0, false);
 
         asteroid = new Asteroid();
         asteroidList.add(asteroid);
         objectList.add(asteroid);
-
-        setOrbit(ship, sun, 400, 0, false);
         setOrbit(asteroid, sun, 600, -10, false);
     }
 
@@ -104,6 +110,7 @@ public class Game {
         asteroidList = null;
         baseList = null;
         planetList = null;
+        moonList = null;
 
         ship = null;
         sun = null;
@@ -114,6 +121,10 @@ public class Game {
 
         for (Planet planet : planetList) {
             planet.update(delta);
+        }
+
+        for (Moon moon : moonList) {
+            moon.update(delta);
         }
 
         for (Base base : baseList) {
@@ -221,7 +232,7 @@ public class Game {
                     Vector2D aCenterPos = new Vector2D(aCenterPosX, aCenterPosY);
                     Vector2D bCenterPos = new Vector2D(bCenterPosX, bCenterPosY);
 
-                    if (objectA.isStaticObject() && !objectA.isStaticObject()) {
+                    if (objectA.isStaticObject() && !objectB.isStaticObject()) {
                         dir = Vector2D.setLength(dir, overlap);
                         dir = Vector2D.mult(dir, 2);
                         bCenterPos = Vector2D.add(bCenterPos, dir);
@@ -270,11 +281,15 @@ public class Game {
                     Vector2D objectBRefelection = Vector2D.mult(Vector2D.mult(result, -1), c1);
                     //System.out.println("objectARefelection: " + objectARefelection + " objectBRefelection: " + objectBRefelection);
 
-                    objectA.setVelX(objectARefelection.getX());
-                    objectA.setVelY(objectARefelection.getY());
+                    if (!objectA.isStaticObject()) {
+                        objectA.addVelX(objectARefelection.getX());
+                        objectA.addVelY(objectARefelection.getY());
+                    }
 
-                    objectB.setVelX(objectBRefelection.getX());
-                    objectB.setVelY(objectBRefelection.getY());
+                    if (!objectB.isStaticObject()) {
+                        objectB.addVelX(objectBRefelection.getX());
+                        objectB.addVelY(objectBRefelection.getY());
+                    }
 
                     GameObject[] objectsArr = {objectA, objectB};
                     for (GameObject object : objectsArr) {
@@ -337,6 +352,10 @@ public class Game {
 
     public List<Planet> getPlanetList() {
         return planetList;
+    }
+
+    public List<Moon> getMoonList() {
+        return moonList;
     }
 
     private void damageObject(GameObject object, double amount) {

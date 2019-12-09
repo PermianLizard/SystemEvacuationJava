@@ -88,7 +88,7 @@ public class Main implements Runnable {
         director = new Director(WIDTH, HEIGHT);
         canvas.addKeyListener(director);
 
-        GameScene gameScene = new GameScene("GameScene");
+        GameScene gameScene = new GameScene();
         director.pushScene(gameScene);
 
         long lastLoopTime = System.nanoTime();

@@ -83,12 +83,20 @@ public abstract class GameObject extends AnimatedSprite {
         this.velX = velX;
     }
 
+    public void addVelX(double amount) {
+        this.velX += amount;
+    }
+
     public double getVelY() {
         return velY;
     }
 
     public void setVelY(double velY) {
         this.velY = velY;
+    }
+
+    public void addVelY(double amount) {
+        this.velY += amount;
     }
 
     public float getMass() {
