@@ -40,17 +40,14 @@
 - GameEventListener [done]
 - Re-added moons [done]
 - Fixed collision reflection issue [done]
-
 - map view [done]
 - generate system [done]
-
-- pause and screen greyout
+- pause and screen greyout [done]
 - bases crew rescue/repair/refuel + display
-- navigation UI
+- navigation UI [done]
 - planet names
-- asteroids
 - meter bars
-- ship fuel hull condition, rescues + display
+- asteroids
 - game timers
 - menu/ instructions scenes
 

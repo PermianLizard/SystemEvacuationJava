@@ -6,6 +6,7 @@ public class Ship extends GameObject {
 
     private final float rotationSpeed;
     private final float thrustForce;
+    private int crew;
 
     public Ship(double x, double y) {
         super(ImageResource.getImage(ImageResource.SHIP), x, y);
@@ -19,6 +20,7 @@ public class Ship extends GameObject {
         setHealth(getHealthMax());
         this.rotationSpeed = 6.0f;
         this.thrustForce = 20f;
+        this.crew = 0;
     }
 
     public Ship() {
@@ -43,5 +45,21 @@ public class Ship extends GameObject {
 
     public float getThrustForce() {
         return thrustForce;
+    }
+
+    public int getCrew() {
+        return crew;
+    }
+
+    public void setCrew(int crew) {
+        this.crew = crew;
+    }
+
+    public void addCrew(int amount) {
+        this.crew += amount;
+    }
+
+    public boolean hasCrew() {
+        return crew > 0;
     }
 }

@@ -108,8 +108,13 @@ public class MapScene extends Scene {
         }
 
         java.util.List<Base> baseList = game.getBaseList();
-        g.setColor(Color.GREEN);
+
         for (Base base : baseList) {
+            if (base.hasCrew()) {
+                g.setColor(Color.GREEN);
+            } else {
+                g.setColor(new Color(110, 110, 0));
+            }
             cx = (int)(base.getX() * SCALE) + screenCenterX;
             cy = (int)(base.getY() * SCALE) + screenCenterY;
             cw = (int)(TOKEN_SIZE * SCALE);

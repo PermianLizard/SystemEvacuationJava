@@ -1,8 +1,6 @@
 package permianlizard.se.scene;
 
-import permianlizard.se.FontResource;
-import permianlizard.se.ImageResource;
-import permianlizard.se.Starfield;
+import permianlizard.se.*;
 import permianlizard.se.game.*;
 import permianlizard.se.sprite.AnimatedSprite;
 import permianlizard.se.sprite.Sprite;
@@ -40,7 +38,7 @@ class TimedLabel {
     }
 
     public void render(Graphics2D g, double xOffset, double yOffset) {
-        Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(12.0f).deriveFont(Font.PLAIN);
+        Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(16.0f).deriveFont(Font.BOLD);
         g.setFont(defaultFont);
         g.setColor(Color.GREEN);
         //Rectangle textBounds = g.getFontMetrics(defaultFont).getStringBounds(text, g).getBounds();
@@ -54,10 +52,11 @@ class TimedLabel {
 
 public class GameScene extends Scene implements GameEventListener {
 
-    int screenCenterX;
-    int screenCenterY;
-    double cameraX;
-    double cameraY;
+    private int screenCenterX;
+    private int screenCenterY;
+    private double cameraX;
+    private double cameraY;
+    private boolean paused;
 
     private Sprite thrustSprite;
     private AnimatedSprite explosionSprite;
@@ -85,6 +84,8 @@ public class GameScene extends Scene implements GameEventListener {
         Director director = getDirector();
         screenCenterX = director.getWidth() / 2;
         screenCenterY = director.getHeight() / 2;
+
+        paused = false;
 
         explosionList = new ArrayList<>();
         timedLabelList = new ArrayList<>();
@@ -121,6 +122,9 @@ public class GameScene extends Scene implements GameEventListener {
 
     @Override
     public void update(double delta) {
+        if (paused) {
+            return;
+        }
 
         Game game = Game.getInstance();
         game.update(delta);
@@ -160,12 +164,12 @@ public class GameScene extends Scene implements GameEventListener {
     public void render(Graphics2D g, int width, int height) {
 
         Game game = Game.getInstance();
+        Ship ship = game.getShip();
 
         double shipX = cameraX;
         double shipY = cameraY;
 
         if (!game.isGameOver()) {
-            Ship ship = game.getShip();
 
             shipX = ship.getX();
             shipY = ship.getY();
@@ -215,6 +219,55 @@ public class GameScene extends Scene implements GameEventListener {
         g.drawLine(screenCenterX - 25, screenCenterY, screenCenterX + 25, screenCenterY);
         g.drawLine(screenCenterX, screenCenterY - 25, screenCenterX, screenCenterY + 25);*/
 
+        // navigation widget
+        if (!game.isGameOver()) {
+            int navOuterRadius = 330;
+            int navInnerRadius = 80;
+            int navOuterDiameter = navOuterRadius * 2;
+            int navInnerDiameter = navInnerRadius * 2;
+            int navCenterX = screenCenterX + (int)ship.getAnchorX();
+            int navCenterY = screenCenterY + (int)ship.getAnchorY();
+            int navOuterX = navCenterX - navOuterRadius;
+            int navOuterY = navCenterY - navOuterRadius;
+            int navInnerX = navCenterX - navInnerRadius;
+            int navInnerY = navCenterY - navInnerRadius;
+
+            g.setColor(new Color(255, 255, 0, 102));
+            g.drawOval(navInnerX, navInnerY, navInnerDiameter, navInnerDiameter);
+            g.drawOval(navOuterX, navOuterY, navOuterDiameter, navOuterDiameter);
+
+            for (Base base : game.getBaseList()) {
+                if (base.isVisited()) {
+                    continue;
+                }
+
+                double distance = MathUtil.distance(ship.getX(), ship.getY(), base.getX(), base.getY()) / 50;
+
+                if (distance > 1 && distance < navOuterRadius) {
+                    Vector2D closestPointOutside = MathUtil.getCircleClosestPoint(base.getX(), base.getY(), ship.getX(), ship.getY(), navOuterRadius);
+                    //Vector2D closestPointInside = MathUtil.getCircleClosestPoint(base.getX(), base.getY(), ship.getX(), ship.getY(), navOuterRadius - (int)distance);
+                    Vector2D closestPointInside = MathUtil.getCircleClosestPoint(base.getX(), base.getY(), ship.getX(), ship.getY(), navInnerRadius + (int)distance);
+
+                    int lineX1 = (int)closestPointInside.getX() - (int)cameraX + (int)ship.getAnchorX();
+                    int lineY1 = (int)closestPointInside.getY() - (int)cameraY + (int)ship.getAnchorY();
+
+                    int lineX2 = (int)closestPointOutside.getX() - (int)cameraX + (int)ship.getAnchorX();
+                    int lineY2 = (int)closestPointOutside.getY() - (int)cameraY + (int)ship.getAnchorY();
+
+                    g.drawLine(lineX1, lineY1, lineX2, lineY2);
+                }
+            }
+        }
+
+        if (paused) {
+            g.setColor(new Color(51, 51, 51, 102));
+            g.fillRect(0, 0, width, height);
+
+            drawTitleText(g, "PAUSED");
+            drawContentText(g, "");
+            drawControlText(g, "Press <P> to Unpause");
+        }
+
         Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(16.0f).deriveFont(Font.BOLD);
         g.setFont(defaultFont);
         g.setColor(Color.CYAN);
@@ -225,7 +278,16 @@ public class GameScene extends Scene implements GameEventListener {
 
     @Override
     public void onBaseVisit(Base base) {
-        timedLabelList.add(new TimedLabel("Fuel 000", base.getX() + 36, base.getY(), 200));
+        Game game = Game.getInstance();
+        Ship ship = game.getShip();
+
+        int crew = base.getCrew();
+
+        ship.addCrew(crew);
+        base.setCrew(0);
+
+        timedLabelList.add(new TimedLabel("+ " + crew + " CREW", ship.getX() + 40, ship.getY() + 10, 200));
+        timedLabelList.add(new TimedLabel("+ XX FUEL", ship.getX() + 40, ship.getY() + 30, 200));
     }
 
     @Override
@@ -243,19 +305,20 @@ public class GameScene extends Scene implements GameEventListener {
         Ship ship = game.getShip();
 
         int keyCode = e.getKeyCode();
+        //System.out.println(keyCode);
 
         if (keyCode == 65) { // a
 
-            if (!game.isGameOver()) {
+            if (!game.isGameOver() && !paused) {
                 ship.rotateLeft();
             }
         } else if (keyCode == 68) { // d
-            if (!game.isGameOver()) {
+            if (!game.isGameOver() && !paused) {
                 ship.rotateRight();
             }
         } else if (keyCode == 87) { // w
 
-            if (!game.isGameOver()) {
+            if (!game.isGameOver() && !paused) {
                 float rotationInDegrees = ship.getRotation();
                 float thrustForce = ship.getThrustForce();
                 double rotationInRadians = Math.toRadians(rotationInDegrees);
@@ -270,7 +333,13 @@ public class GameScene extends Scene implements GameEventListener {
         } else if (keyCode == 83) { // s
 
         } else if (keyCode == 16) { // shift
-            this.director.pushScene(mapScene);
+            if (!game.isGameOver() && !paused) {
+                this.director.pushScene(mapScene);
+            }
+        } else if (keyCode == 80) { // p
+            if (!game.isGameOver()) {
+                paused = !paused;
+            }
         }
     }
 
@@ -321,6 +390,48 @@ public class GameScene extends Scene implements GameEventListener {
 
     }
 
+    private void drawTitleText(Graphics2D g, String text) {
+        Director director = getDirector();
+
+        Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(48.0f).deriveFont(Font.BOLD);
+        g.setFont(defaultFont);
+        g.setColor(Color.WHITE);
+
+        Rectangle textBounds = g.getFontMetrics(defaultFont).getStringBounds(text, g).getBounds();
+        int x = 100;
+        int y = 400 - (int)(textBounds.getHeight() / 2);
+
+        g.drawString(text, x, y);
+    }
+
+    private void drawContentText(Graphics2D g, String text) {
+        Director director = getDirector();
+
+        Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(24.0f).deriveFont(Font.BOLD);
+        g.setFont(defaultFont);
+        g.setColor(Color.WHITE);
+
+        Rectangle textBounds = g.getFontMetrics(defaultFont).getStringBounds(text, g).getBounds();
+        int x = 100;
+        int y = 500 - (int)(textBounds.getHeight() / 2);
+
+        g.drawString(text, x, y);
+    }
+
+    private void drawControlText(Graphics2D g, String text) {
+        Director director = getDirector();
+
+        Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(24.0f).deriveFont(Font.BOLD);
+        g.setFont(defaultFont);
+        g.setColor(Color.WHITE);
+
+        Rectangle textBounds = g.getFontMetrics(defaultFont).getStringBounds(text, g).getBounds();
+        int x = 100;
+        int y = 600 - (int)(textBounds.getHeight() / 2);
+
+        g.drawString(text, x, y);
+    }
+
     private void addExplosion(double x, double y) {
         BufferedImage[] anim = ImageResource.getAnimation(ImageResource.EXPLOSION);
         explosionSprite = new AnimatedSprite(anim, x, y, 8, false);
@@ -337,7 +448,7 @@ public class GameScene extends Scene implements GameEventListener {
         double spriteY = sprite.getY();
 
         // draw gravity radius
-        if (sprite instanceof GameObject) {
+        /*if (sprite instanceof GameObject) {
             GameObject object = (GameObject) sprite;
 
             float gravityRadius = object.getGravityRadius();
@@ -349,20 +460,22 @@ public class GameScene extends Scene implements GameEventListener {
                 g.setColor(Color.GREEN);
                 g.drawOval((int) Math.rint(centerX - gravityRadius - cameraX), (int) Math.rint(centerY - gravityRadius - cameraY), (int) (gravityRadius * 2), (int) (gravityRadius * 2));
             }
-        }
+        }*/
 
         // draw collection circles
         if (sprite instanceof Base) {
             Base base = (Base) sprite;
 
-            float collectionRadius = base.getCollectionRadius();
+            if (!base.isVisited()) {
+                float collectionRadius = base.getCollectionRadius();
 
-            // only works if anchorX is guaranteed to be at the center
-            double centerX = base.getX() + base.getAnchorX();
-            double centerY = base.getY() + base.getAnchorY();
+                // only works if anchorX is guaranteed to be at the center
+                double centerX = base.getX() + base.getAnchorX();
+                double centerY = base.getY() + base.getAnchorY();
 
-            g.setColor(Color.RED);
-            g.drawOval((int) Math.rint(centerX - collectionRadius - cameraX), (int) Math.rint(centerY - collectionRadius - cameraY), (int) (collectionRadius * 2), (int) (collectionRadius * 2));
+                g.setColor(Color.RED);
+                g.drawOval((int) Math.rint(centerX - collectionRadius - cameraX), (int) Math.rint(centerY - collectionRadius - cameraY), (int) (collectionRadius * 2), (int) (collectionRadius * 2));
+            }
         }
 
         // draw collision circles
