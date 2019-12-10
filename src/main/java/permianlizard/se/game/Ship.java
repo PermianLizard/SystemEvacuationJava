@@ -2,25 +2,25 @@ package permianlizard.se.game;
 
 import permianlizard.se.ImageResource;
 
-public class Ship extends GameObject {
+public class Ship extends Construct {
 
     private final float rotationSpeed;
     private final float thrustForce;
-    private int crew;
 
     public Ship(double x, double y) {
         super(ImageResource.getImage(ImageResource.SHIP), x, y);
         setCollisionRadius(getImage().getWidth() / 2);
         setRotation(-90.0f);
         setMass(100);
-        setStaticObject(true); // FIXME Temporary
+        //setStaticObject(true);
         setDestructible(true);
         setImpactResistance(1.0f);
         setHealthMax(8);
         setHealth(getHealthMax());
+        setCrewMax(30 * 7 + 1);
+        setCrew(1);
         this.rotationSpeed = 6.0f;
         this.thrustForce = 20f;
-        this.crew = 0;
     }
 
     public Ship() {
@@ -45,21 +45,5 @@ public class Ship extends GameObject {
 
     public float getThrustForce() {
         return thrustForce;
-    }
-
-    public int getCrew() {
-        return crew;
-    }
-
-    public void setCrew(int crew) {
-        this.crew = crew;
-    }
-
-    public void addCrew(int amount) {
-        this.crew += amount;
-    }
-
-    public boolean hasCrew() {
-        return crew > 0;
     }
 }

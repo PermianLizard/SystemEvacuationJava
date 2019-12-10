@@ -2,11 +2,9 @@ package permianlizard.se.game;
 
 import permianlizard.se.ImageResource;
 
-public class Base extends GameObject {
-
+public class Base extends Construct {
     private float collectionRadius;
     private boolean visited;
-    private int crew;
 
     public Base(double x, double y) {
         super(ImageResource.getImage(ImageResource.BASE), x, y);
@@ -16,7 +14,8 @@ public class Base extends GameObject {
         setDestructible(true);
         setHealthMax(15);
         setHealth(getHealthMax());
-        this.crew = 30;
+        setCrewMax(30);
+        setCrew(30);
     }
 
     public void onCollide(GameObject other) {
@@ -37,17 +36,5 @@ public class Base extends GameObject {
 
     public boolean isVisited() {
         return visited;
-    }
-
-    public int getCrew() {
-        return crew;
-    }
-
-    public void setCrew(int crew) {
-        this.crew = crew;
-    }
-
-    public boolean hasCrew() {
-        return crew > 0;
     }
 }

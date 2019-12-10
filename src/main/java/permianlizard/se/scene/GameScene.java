@@ -85,7 +85,7 @@ public class GameScene extends Scene implements GameEventListener {
         screenCenterX = director.getWidth() / 2;
         screenCenterY = director.getHeight() / 2;
 
-        paused = false;
+        paused = true;
 
         explosionList = new ArrayList<>();
         timedLabelList = new ArrayList<>();
@@ -122,11 +122,12 @@ public class GameScene extends Scene implements GameEventListener {
 
     @Override
     public void update(double delta) {
-        if (paused) {
+        Game game = Game.getInstance();
+
+        if (paused || (game.isGameOver() && game.isVictory())) {
             return;
         }
 
-        Game game = Game.getInstance();
         game.update(delta);
 
         if (!game.isGameOver()) {
@@ -162,7 +163,6 @@ public class GameScene extends Scene implements GameEventListener {
 
     @Override
     public void render(Graphics2D g, int width, int height) {
-
         Game game = Game.getInstance();
         Ship ship = game.getShip();
 
@@ -202,7 +202,7 @@ public class GameScene extends Scene implements GameEventListener {
             drawSprite(g, explosion, shipX, shipY, width, height);
         }
 
-        if (!game.isGameOver()) {
+        if (!game.isGameOver() || game.isVictory()) {
             drawShip(g);
         }
 
@@ -259,21 +259,48 @@ public class GameScene extends Scene implements GameEventListener {
             }
         }
 
+        boolean greyOut = false;
+        String titleText = "";
+        String contentText = "";
+        String controlText = "";
+
         if (paused) {
+            greyOut = true;
+            titleText = "PAUSED";
+            controlText = "Press <P> to Unpause";
+        } else if (game.isGameOver()) {
+            greyOut = true;
+            if (game.isVictory()) {
+                titleText = "VICTORY!";
+            } else {
+                titleText = "You've botched it!";
+            }
+            controlText = "Press <ESC> to Continue";
+        }
+
+        if (greyOut) {
             g.setColor(new Color(51, 51, 51, 102));
             g.fillRect(0, 0, width, height);
 
-            drawTitleText(g, "PAUSED");
-            drawContentText(g, "");
-            drawControlText(g, "Press <P> to Unpause");
+            drawTitleText(g, titleText);
+            drawContentText(g, contentText);
+            drawControlText(g, controlText);
         }
 
-        Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(16.0f).deriveFont(Font.BOLD);
-        g.setFont(defaultFont);
-        g.setColor(Color.CYAN);
-        String text = "TEXT";
-        Rectangle textBounds = g.getFontMetrics(defaultFont).getStringBounds(text, g).getBounds();
-        g.drawString(text, 20, 20);
+        if (!game.isGameOver()) {
+            Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(16.0f).deriveFont(Font.BOLD);
+            g.setFont(defaultFont);
+            g.setColor(Color.WHITE);
+
+            g.drawString("FUEL", 20, 30);
+            drawBar(g, 88, 13, 5, 20, 100, 17, false);
+
+            g.drawString("HULL CONDITION", 210, 30);
+            drawBar(g, 425, 13, 5, 20, 100, 17, false);
+
+            g.drawString("RESCUED", 550, 30);
+            drawBar(g, 660, 13, ship.getCrew(), ship.getCrewMax(), 100, 17, false);
+        }
     }
 
     @Override
@@ -287,7 +314,11 @@ public class GameScene extends Scene implements GameEventListener {
         base.setCrew(0);
 
         timedLabelList.add(new TimedLabel("+ " + crew + " CREW", ship.getX() + 40, ship.getY() + 10, 200));
-        timedLabelList.add(new TimedLabel("+ XX FUEL", ship.getX() + 40, ship.getY() + 30, 200));
+        timedLabelList.add(new TimedLabel("+ 00 FUEL", ship.getX() + 40, ship.getY() + 30, 200));
+
+        if (ship.getCrew() >= ship.getCrewMax()) {
+            game.declareVictory();
+        }
     }
 
     @Override
@@ -324,10 +355,9 @@ public class GameScene extends Scene implements GameEventListener {
                 double rotationInRadians = Math.toRadians(rotationInDegrees);
                 double tx = Math.cos(rotationInRadians) * thrustForce;
                 double ty = Math.sin(rotationInRadians) * thrustForce;
-                //ship.applyForce(tx, ty);
+                ship.applyForce(tx, ty);
 
-                ship.translate(tx, ty); // FIXME temporary
-                //thrustSprite.translate(tx, ty);
+                //ship.translate(tx, ty);
                 thrustSprite.setVisible(true);
             }
         } else if (keyCode == 83) { // s
@@ -340,6 +370,8 @@ public class GameScene extends Scene implements GameEventListener {
             if (!game.isGameOver()) {
                 paused = !paused;
             }
+        } else if (keyCode == 27) { // Esc
+
         }
     }
 
@@ -391,8 +423,6 @@ public class GameScene extends Scene implements GameEventListener {
     }
 
     private void drawTitleText(Graphics2D g, String text) {
-        Director director = getDirector();
-
         Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(48.0f).deriveFont(Font.BOLD);
         g.setFont(defaultFont);
         g.setColor(Color.WHITE);
@@ -405,8 +435,6 @@ public class GameScene extends Scene implements GameEventListener {
     }
 
     private void drawContentText(Graphics2D g, String text) {
-        Director director = getDirector();
-
         Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(24.0f).deriveFont(Font.BOLD);
         g.setFont(defaultFont);
         g.setColor(Color.WHITE);
@@ -419,8 +447,6 @@ public class GameScene extends Scene implements GameEventListener {
     }
 
     private void drawControlText(Graphics2D g, String text) {
-        Director director = getDirector();
-
         Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(24.0f).deriveFont(Font.BOLD);
         g.setFont(defaultFont);
         g.setColor(Color.WHITE);
@@ -437,6 +463,26 @@ public class GameScene extends Scene implements GameEventListener {
         explosionSprite = new AnimatedSprite(anim, x, y, 8, false);
         explosionSprite.setRotation(45.0f);
         explosionList.add(explosionSprite);
+    }
+
+    private void drawBar(Graphics2D g, int x, int y, double amount, double amountMax, int width, int height, boolean progress) {
+        double perc = amount / amountMax;
+        double fillWidth = 0;
+        int gv = 0;
+        int rv = 0;
+        if (progress) {
+            fillWidth = width - (width * perc);
+            gv = (int)(255 * (1 - perc));
+            rv = (int)(255 * (perc));
+        } else {
+            fillWidth = width * perc;
+            gv = (int)(255 * (1 - perc));
+            rv = (int)(255 * (perc));
+        }
+        g.setColor(new Color(rv, gv, 0, 255));
+        g.fillRect(x, y, (int)fillWidth, height);
+        g.setColor(Color.WHITE);
+        g.drawRect(x, y, width, height);
     }
 
     private void drawSprite(Graphics2D g, Sprite sprite, double x, double y, int width, int height) {

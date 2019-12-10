@@ -20,6 +20,7 @@ public class Game {
     }
 
     boolean gameOver;
+    boolean victory;
 
     private Ship ship;
     private Sun sun;
@@ -46,6 +47,7 @@ public class Game {
 
     public void newGame() {
         gameOver = false;
+        victory = false;
 
         objectList = new ArrayList<>();
         asteroidList = new ArrayList<>();
@@ -57,8 +59,6 @@ public class Game {
     }
 
     public void cleanup() {
-        gameOver = true;
-
         objectList = null;
         asteroidList = null;
         baseList = null;
@@ -283,6 +283,15 @@ public class Game {
         return gameOver;
     }
 
+    public boolean isVictory() {
+        return victory;
+    }
+
+    public void declareVictory() {
+        this.victory = true;
+        this.gameOver = true;
+    }
+
     public Ship getShip() {
         return ship;
     }
@@ -434,6 +443,7 @@ public class Game {
 
         int angle = 0;
         int index = 0;
+        int crewTotal = 0;
 
         for (int i = 0; i < numPlanets; i++) {
             distance += memberPadding;
@@ -459,6 +469,8 @@ public class Game {
             // base
             Base base = new Base(0, 0);
             addBase(base);
+            base.setCrew(30);
+            crewTotal += 30;
             setOrbit(base, planet, 375, angle, false);
 
             // moons
@@ -473,5 +485,11 @@ public class Game {
                 setOrbit(moonA, planet, 375, angle, false);
             }
         }
+
+        ship.setCrew(3);
+        crewTotal += 3;
+        ship.setCrewMax(crewTotal);
+
+        System.out.println("Crew total: " + crewTotal);
     }
 }
