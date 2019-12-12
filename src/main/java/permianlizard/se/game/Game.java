@@ -499,7 +499,7 @@ public class Game {
 
         double memberPadding = 1200;
         double distance = 0;
-        int numPlanets = 7;
+        int numPlanets = 5;
 
         List<Integer> planetAngleList = new ArrayList<>();
         for (int angle = 0; angle < 360; angle += 40) {

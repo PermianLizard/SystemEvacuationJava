@@ -14,7 +14,7 @@ public class Ship extends Construct {
         setMass(100);
         //setStaticObject(true);
         setDestructible(true);
-        setImpactResistance(1.0f);
+        setImpactResistance(2.8f);
         setHealthMax(8);
         setHealth(getHealthMax());
         setCrewMax(30 * 7 + 1);

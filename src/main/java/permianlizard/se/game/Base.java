@@ -12,6 +12,7 @@ public class Base extends Construct {
         setCollectionRadius(getImage().getWidth() * 2.5f);
         setMass(200);
         setDestructible(true);
+        setImpactResistance(3.5f);
         setHealthMax(15);
         setHealth(getHealthMax());
         setCrewMax(30);

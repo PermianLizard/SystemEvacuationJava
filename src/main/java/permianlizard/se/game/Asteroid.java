@@ -9,7 +9,7 @@ public class Asteroid extends GameObject {
         setCollisionRadius(getImage().getWidth() /2);
         setMass(400);
         setDestructible(true);
-        setImpactResistance(1.3f);
+        setImpactResistance(2.2f);
         setHealthMax(15);
         setHealth(getHealthMax());
     }

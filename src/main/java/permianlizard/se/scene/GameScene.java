@@ -38,7 +38,7 @@ class TimedLabel {
     }
 
     public void render(Graphics2D g, double xOffset, double yOffset) {
-        Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(16.0f).deriveFont(Font.BOLD);
+        Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(16.0f).deriveFont(Font.PLAIN);
         g.setFont(defaultFont);
         g.setColor(Color.GREEN);
         //Rectangle textBounds = g.getFontMetrics(defaultFont).getStringBounds(text, g).getBounds();
@@ -336,41 +336,36 @@ public class GameScene extends Scene implements GameEventListener {
         Ship ship = game.getShip();
 
         int keyCode = e.getKeyCode();
-        //System.out.println(keyCode);
+        //System.out.println("keyCode: "+keyCode);
 
-        if (keyCode == 65) { // a
-
-            if (!game.isGameOver() && !paused) {
+        if (!game.isGameOver() && !paused) {
+            if (keyCode == 65 || keyCode == 37) { // a, left
                 ship.rotateLeft();
-            }
-        } else if (keyCode == 68) { // d
-            if (!game.isGameOver() && !paused) {
+            } else if (keyCode == 68 || keyCode == 39) { // d, right
                 ship.rotateRight();
-            }
-        } else if (keyCode == 87) { // w
-
-            if (!game.isGameOver() && !paused) {
+            } else if (keyCode == 87 || keyCode == 38) { // w, up
                 float rotationInDegrees = ship.getRotation();
                 float thrustForce = ship.getThrustForce();
                 double rotationInRadians = Math.toRadians(rotationInDegrees);
                 double tx = Math.cos(rotationInRadians) * thrustForce;
                 double ty = Math.sin(rotationInRadians) * thrustForce;
                 ship.applyForce(tx, ty);
-
                 //ship.translate(tx, ty);
                 thrustSprite.setVisible(true);
-            }
-        } else if (keyCode == 83) { // s
+            } else if (keyCode == 83) { // s
 
-        } else if (keyCode == 16) { // shift
-            if (!game.isGameOver() && !paused) {
+            } else if (keyCode == 9) { // tab
                 this.director.pushScene(mapScene);
             }
-        } else if (keyCode == 80) { // p
-            if (!game.isGameOver()) {
+        }
+
+        if (!game.isGameOver()) {
+            if (keyCode == 80) { // p
                 paused = !paused;
             }
-        } else if (keyCode == 27) { // Esc
+        }
+
+        if (keyCode == 27) { // Esc
 
         }
     }
@@ -380,7 +375,7 @@ public class GameScene extends Scene implements GameEventListener {
         Game game = Game.getInstance();
 
         int keyCode = e.getKeyCode();
-        if (keyCode == 87) { // w
+        if (keyCode == 87 || keyCode == 38) { // w
             if (!game.isGameOver()) {
                 thrustSprite.setVisible(false);
             }

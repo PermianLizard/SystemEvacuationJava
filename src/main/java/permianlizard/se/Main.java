@@ -84,6 +84,7 @@ public class Main implements Runnable {
         canvas.createBufferStrategy(2);
         bufferStrategy = canvas.getBufferStrategy();
         canvas.requestFocus();
+        canvas.setFocusTraversalKeysEnabled(false);
 
         director = new Director(WIDTH, HEIGHT);
         canvas.addKeyListener(director);

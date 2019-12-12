@@ -158,7 +158,7 @@ public class MapScene extends Scene {
     public void keyReleased(KeyEvent e) {
         int keyCode = e.getKeyCode();
 
-        if (keyCode == 16) { // shift
+        if (keyCode == 9) { // tab
             this.director.popScene();
         }
     }
