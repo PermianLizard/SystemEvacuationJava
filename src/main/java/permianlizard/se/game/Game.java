@@ -441,6 +441,20 @@ public class Game {
         satelliteAngleList.add(180);
         satelliteAngleList.add(270);
 
+        List<String> planetNameList = new ArrayList<>();
+        planetNameList.add("Tamde");
+        planetNameList.add("Yol");
+        planetNameList.add("Trog");
+        planetNameList.add("Mar");
+        planetNameList.add("Een");
+        planetNameList.add("Sila");
+        planetNameList.add("Ado");
+        planetNameList.add("Khem");
+        planetNameList.add("Teim");
+        planetNameList.add("Tamut");
+        planetNameList.add("Beda");
+        planetNameList.add("Ponni");
+
         int angle = 0;
         int index = 0;
         int crewTotal = 0;
@@ -452,11 +466,15 @@ public class Game {
             angle = planetAngleList.get(random.nextInt(planetAngleList.size()));
             planetPos = Vector2D.rotate(planetPos, angle);
 
+            int nameIndex = random.nextInt(planetNameList.size());
+            String name = planetNameList.get(nameIndex);
+            planetNameList.remove(nameIndex);
+
             Planet planet = null;
             if (random.nextBoolean()) {
-                planet = new PlanetA(planetPos.getX(), planetPos.getY());
+                planet = new PlanetA(name, planetPos.getX(), planetPos.getY());
             } else {
-                planet = new PlanetB(planetPos.getX(), planetPos.getY());
+                planet = new PlanetB(name, planetPos.getX(), planetPos.getY());
             }
 
             addPlanet(planet);

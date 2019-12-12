@@ -1,5 +1,6 @@
 package permianlizard.se.scene;
 
+import permianlizard.se.FontResource;
 import permianlizard.se.Vector2D;
 import permianlizard.se.game.*;
 
@@ -96,6 +97,15 @@ public class MapScene extends Scene {
             cw = (int)(planet.getWidth() * SCALE);
             ch = (int)(planet.getHeight() * SCALE);
             g.fillOval(cx, cy, cw, ch);
+
+            Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(16.0f).deriveFont(Font.PLAIN);
+            g.setFont(defaultFont);
+            g.setColor(new Color(255, 255, 255, 120));
+            String text = planet.getName();
+            Rectangle textBounds = g.getFontMetrics(defaultFont).getStringBounds(text, g).getBounds();
+            int x = (int) (((planet.getX() + planet.getAnchorX()) * SCALE) - textBounds.getWidth() / 2 + screenCenterX);
+            int y = (int) ((planet.getY() + planet.getAnchorY()) * SCALE) - 10 + screenCenterY;
+            g.drawString(text, x, y);
         }
 
         java.util.List<Moon> moonList = game.getMoonList();

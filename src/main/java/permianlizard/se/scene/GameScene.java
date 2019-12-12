@@ -569,6 +569,17 @@ public class GameScene extends Scene implements GameEventListener {
         AffineTransformOp op = new AffineTransformOp(translateWorld, AffineTransformOp.TYPE_BILINEAR);
 
         g.drawImage(op.filter(sprite.getImage(), null), 0, 0, null);
+
+        if (sprite instanceof Planet) {
+            Planet planet = (Planet)sprite;
+
+            Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(16.0f).deriveFont(Font.PLAIN);
+            g.setFont(defaultFont);
+            g.setColor(Color.BLUE);
+            String text = planet.getName();
+            Rectangle textBounds = g.getFontMetrics(defaultFont).getStringBounds(text, g).getBounds();
+            g.drawString(text, (int) (sprite.getX() + sprite.getAnchorX() - textBounds.getWidth() / 2 - cameraX), (int) (sprite.getY() + sprite.getAnchorY() - cameraY));
+        }
     }
 
     private void drawShip(Graphics2D g) {
