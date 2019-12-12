@@ -9,6 +9,10 @@ public class MathUtil {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 
+    public static double distance(Vector2D v1, Vector2D v2) {
+        return Math.sqrt(Math.pow(v2.getX() - v1.getX(), 2) + Math.pow(v2.getY() - v1.getY(), 2));
+    }
+
     public static Vector2D getCircleClosestPoint(double x, double y, double cx, double cy, float cradius) {
         double dv = Math.sqrt(Math.pow(cx - x, 2) + Math.pow(cy - y, 2));
         double rx = cx + (cradius * (x - cx) / dv);

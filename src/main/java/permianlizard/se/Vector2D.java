@@ -73,6 +73,14 @@ public class Vector2D {
         return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
     }
 
+    public double getAngle() {
+        double lengthSqrd = Math.pow(x, 2) + Math.pow(y, 2);
+        if (lengthSqrd == 0) {
+            return 0;
+        }
+        return Math.toDegrees(Math.atan2(y, x));
+    }
+
     public double getX() {
         return x;
     }

@@ -5,8 +5,8 @@ import permianlizard.se.Vector2D;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
 
 public class Game {
 
@@ -21,6 +21,7 @@ public class Game {
 
     boolean gameOver;
     boolean victory;
+    int time;
 
     private Ship ship;
     private Sun sun;
@@ -48,6 +49,7 @@ public class Game {
     public void newGame() {
         gameOver = false;
         victory = false;
+        time = 0;
 
         objectList = new ArrayList<>();
         asteroidList = new ArrayList<>();
@@ -108,6 +110,73 @@ public class Game {
                         listener.onBaseVisit(base);
                     }
                 }
+            }
+
+            // generate asteroids
+            if (time % 15 == 0) {
+                Random random = new Random();
+
+                Vector2D playerPos = new Vector2D(ship.getX() + ship.getAnchorX(), ship.getY() + ship.getAnchorY());
+                Vector2D playerVel = new Vector2D(ship.getVelX(), ship.getVelY());
+
+                double rangeMin = 1;
+                double rangeMax = MathUtil.SPEED_LIMIT;
+                double randomValue = rangeMin + (rangeMax - rangeMin) * random.nextDouble();
+
+                if (playerVel.getLength() > randomValue) {
+                    double playerAngle = playerVel.getAngle();
+
+                    rangeMin = playerAngle - 90;
+                    rangeMax = playerAngle + 90;
+                    double genAngle = rangeMin + (rangeMax - rangeMin) * random.nextDouble();
+
+                    Vector2D genPos = new Vector2D(800, 0); // Generation Radius
+                    genPos = Vector2D.rotate(genPos, genAngle);
+                    genPos = Vector2D.add(playerPos, genPos);
+
+                    // is valid pos? check collisions
+                    boolean genPosValid = true;
+                    for (GameObject object: objectList) {
+                        Vector2D objectPos = new Vector2D(object.getX() + object.getAnchorX(), object.getY() + object.getAnchorY());
+                        float collisionRadius = object.getCollisionRadius() + 32f;
+                        double distance = MathUtil.distance(genPos, objectPos);
+                        if (distance < collisionRadius) {
+                            genPosValid = false;
+                            break;
+                        }
+                    }
+
+                    if (genPosValid) {
+                        Asteroid asteroid = new Asteroid(0, 0);
+                        asteroid.setX(genPos.getX() + asteroid.getAnchorX());
+                        asteroid.setY(genPos.getY() + asteroid.getAnchorY());
+
+                        rangeMin = -1;
+                        rangeMax = 1;
+                        double asteroidVelX = rangeMin + (rangeMax - rangeMin) * random.nextDouble();;
+                        double asteroidVelY = rangeMin + (rangeMax - rangeMin) * random.nextDouble();;
+
+                        asteroid.setVelX(asteroidVelX);
+                        asteroid.setVelY(asteroidVelY);
+
+                        addAsteroid(asteroid);
+                    }
+                }
+            }
+
+            // remove asteroids
+            List<Asteroid> asteroidToRemoveList = new ArrayList<>();
+            for (Asteroid asteroid : asteroidList) {
+                Vector2D shipPos = new Vector2D(ship.getX() + ship.getAnchorX(), ship.getY() + ship.getAnchorY());
+                Vector2D asteroidPos = new Vector2D(asteroid.getX() + asteroid.getAnchorX(), asteroid.getY() + asteroid.getAnchorY());
+                double distance = MathUtil.distance(shipPos, asteroidPos);
+                if (distance > 1200) { // Cleanup Radius
+                    asteroidToRemoveList.add(asteroid);
+
+                }
+            }
+            for (Asteroid asteroid : asteroidToRemoveList) {
+                destroyObject(asteroid);
             }
         }
 
@@ -277,6 +346,8 @@ public class Game {
 
             object.translate(vel.getX(), vel.getY());
         }
+
+        time += 1;
     }
 
     public boolean isGameOver() {
