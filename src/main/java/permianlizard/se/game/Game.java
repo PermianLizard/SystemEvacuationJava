@@ -6,7 +6,6 @@ import permianlizard.se.Vector2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Vector;
 
 public class Game {
 
@@ -20,8 +19,10 @@ public class Game {
     }
 
     boolean gameOver;
+    String gameOverMessage;
     boolean victory;
     int time;
+    final int mapLimitRadius;
 
     private Ship ship;
     private Sun sun;
@@ -35,6 +36,7 @@ public class Game {
     private List<GameEventListener> eventListenersList;
 
     private Game() {
+        mapLimitRadius = 10000;
         eventListenersList = new ArrayList<>();
     }
 
@@ -96,7 +98,6 @@ public class Game {
             // check base collection
             float shipCollisionRadius = ship.getCollisionRadius();
             for (Base base : baseList) {
-
                 if (base.isVisited()) {
                     continue;
                 }
@@ -161,6 +162,12 @@ public class Game {
 
                         addAsteroid(asteroid);
                     }
+                }
+
+                // system limits check
+                Vector2D origin = new Vector2D(0, 0);
+                if (MathUtil.distance(origin, playerPos) > mapLimitRadius) {
+                    declareDefeat("You went too far out");
                 }
             }
 
@@ -358,9 +365,23 @@ public class Game {
         return victory;
     }
 
+    public String getGameOverMessage() {
+        return gameOverMessage;
+    }
+
+    public void declareDefeat(String message) {
+        this.victory = false;
+        this.gameOver = true;
+        this.gameOverMessage = message;
+    }
+
     public void declareVictory() {
         this.victory = true;
         this.gameOver = true;
+    }
+
+    public int getMapLimitRadius() {
+        return mapLimitRadius;
     }
 
     public Ship getShip() {
@@ -422,7 +443,6 @@ public class Game {
     }
 
     private void damageObject(GameObject object, double amount) {
-        System.out.println("damage: " + amount);
         float health = object.getHealth();
         health -= amount;
         if (health <= 0) {
@@ -437,7 +457,7 @@ public class Game {
         objectList.remove(object);
 
         if (object instanceof Ship) {
-            gameOver = true;
+            declareDefeat("");
             ship = null;
         } else if (object instanceof Asteroid) {
             asteroidList.remove(object);
@@ -516,7 +536,7 @@ public class Game {
         planetNameList.add("Tamde");
         planetNameList.add("Yol");
         planetNameList.add("Trog");
-        planetNameList.add("Mar");
+        planetNameList.add("Mab");
         planetNameList.add("Een");
         planetNameList.add("Sila");
         planetNameList.add("Ado");

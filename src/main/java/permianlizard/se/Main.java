@@ -76,6 +76,7 @@ public class Main implements Runnable {
         canvas = new Canvas();
         canvas.setBounds(0, 0, WIDTH, HEIGHT);
         canvas.setIgnoreRepaint(true);
+        canvas.setFocusTraversalKeysEnabled(false);
         canvas.setBackground(Color.BLACK);
         panel.add(canvas);
 
@@ -84,7 +85,6 @@ public class Main implements Runnable {
         canvas.createBufferStrategy(2);
         bufferStrategy = canvas.getBufferStrategy();
         canvas.requestFocus();
-        canvas.setFocusTraversalKeysEnabled(false);
 
         director = new Director(WIDTH, HEIGHT);
         canvas.addKeyListener(director);

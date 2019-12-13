@@ -43,13 +43,20 @@
 - map view [done]
 - generate system [done]
 - pause and screen greyout [done]
-- bases crew rescue/repair/refuel + display
 - meter bars [done]
 - navigation UI [done]
 - planet names [done]
 - asteroids generation [done]
-- game timers
-- menu/ instructions scenes
+- handle case where unvisited base gets destroyed (defeat) [done]
+- handle case where ship goes too far out (defeat) [done]
+- fuel and refueling
+- damage and repair
+- game countdown timer
+- display ship speed
+- display controls at bottom of screen
+- menu scene
+- instructions scene
+- survive for 10 seconds after last rescue?
 
 == packaging ==
 - executable jar [done]

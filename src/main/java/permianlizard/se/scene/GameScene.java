@@ -219,8 +219,9 @@ public class GameScene extends Scene implements GameEventListener {
         g.drawLine(screenCenterX - 25, screenCenterY, screenCenterX + 25, screenCenterY);
         g.drawLine(screenCenterX, screenCenterY - 25, screenCenterX, screenCenterY + 25);*/
 
-        // navigation widget
         if (!game.isGameOver()) {
+
+            // navigation widget
             int navOuterRadius = 330;
             int navInnerRadius = 80;
             int navOuterDiameter = navOuterRadius * 2;
@@ -257,37 +258,7 @@ public class GameScene extends Scene implements GameEventListener {
                     g.drawLine(lineX1, lineY1, lineX2, lineY2);
                 }
             }
-        }
 
-        boolean greyOut = false;
-        String titleText = "";
-        String contentText = "";
-        String controlText = "";
-
-        if (paused) {
-            greyOut = true;
-            titleText = "PAUSED";
-            controlText = "Press <P> to Unpause";
-        } else if (game.isGameOver()) {
-            greyOut = true;
-            if (game.isVictory()) {
-                titleText = "VICTORY!";
-            } else {
-                titleText = "You've botched it!";
-            }
-            controlText = "Press <ESC> to Continue";
-        }
-
-        if (greyOut) {
-            g.setColor(new Color(51, 51, 51, 102));
-            g.fillRect(0, 0, width, height);
-
-            drawTitleText(g, titleText);
-            drawContentText(g, contentText);
-            drawControlText(g, controlText);
-        }
-
-        if (!game.isGameOver()) {
             Font defaultFont = FontResource.getFont(FontResource.DEFAULT).deriveFont(16.0f).deriveFont(Font.BOLD);
             g.setFont(defaultFont);
             g.setColor(Color.WHITE);
@@ -300,6 +271,35 @@ public class GameScene extends Scene implements GameEventListener {
 
             g.drawString("RESCUED", 550, 30);
             drawBar(g, 660, 13, ship.getCrew(), ship.getCrewMax(), 100, 17, false);
+        }
+
+        boolean greyOut = false;
+        String titleText = "";
+        String contentText = "";
+        String controlText = "";
+
+        if (game.isGameOver()) {
+            greyOut = true;
+            if (game.isVictory()) {
+                titleText = "VICTORY!";
+            } else {
+                titleText = "You've botched it!";
+                contentText = game.getGameOverMessage();
+            }
+            controlText = "Press <ESC> to Continue";
+        } else if (paused) {
+            greyOut = true;
+            titleText = "PAUSED";
+            controlText = "Press <P> to Unpause";
+        }
+
+        if (greyOut) {
+            g.setColor(new Color(51, 51, 51, 102));
+            g.fillRect(0, 0, width, height);
+
+            drawTitleText(g, titleText);
+            drawContentText(g, contentText);
+            drawControlText(g, controlText);
         }
     }
 
@@ -324,6 +324,13 @@ public class GameScene extends Scene implements GameEventListener {
     @Override
     public void onDestroyObject(GameObject object) {
         addExplosion(object.getX(), object.getY());
+
+        if (object instanceof Base) {
+            Base base = (Base) object;
+            if (!base.isVisited()) {
+                Game.getInstance().declareDefeat("We lost a crewed station");
+            }
+        }
     }
 
     @Override

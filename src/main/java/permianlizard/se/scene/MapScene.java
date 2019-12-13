@@ -65,12 +65,22 @@ public class MapScene extends Scene {
 
         Game game = Game.getInstance();
 
+        // system limits
+        int mapLimitRadius = game.getMapLimitRadius();
+        int mapLimitDiameter = mapLimitRadius * 2;
+        g.setColor(new Color(120, 0, 0));
+        int cx = (int)(-mapLimitRadius * SCALE) + screenCenterX;
+        int cy = (int)(-mapLimitRadius * SCALE) + screenCenterY;
+        int cw = (int)(mapLimitDiameter * SCALE);
+        int ch = (int)(mapLimitDiameter * SCALE);
+        g.drawOval(cx, cy, cw, ch);
+
         Sun sun = game.getSun();
         g.setColor(new Color(220, 220, 220));
-        int cx = (int)(sun.getX() * SCALE) + screenCenterX;
-        int cy = (int)(sun.getY() * SCALE) + screenCenterY;
-        int cw = (int)(sun.getWidth() * SCALE);
-        int ch = (int)(sun.getHeight() * SCALE);
+        cx = (int)(sun.getX() * SCALE) + screenCenterX;
+        cy = (int)(sun.getY() * SCALE) + screenCenterY;
+        cw = (int)(sun.getWidth() * SCALE);
+        ch = (int)(sun.getHeight() * SCALE);
         g.fillOval(cx, cy, cw, ch);
 
         java.util.List<Planet> planetList = game.getPlanetList();
