@@ -10,7 +10,7 @@ public class Base extends Construct {
         super(ImageResource.getImage(ImageResource.BASE), x, y);
         setCollisionRadius(getImage().getWidth() / 2);
         setCollectionRadius(getImage().getWidth() * 2.5f);
-        setMass(200);
+        setMass(400);
         setDestructible(true);
         setImpactResistance(3.5f);
         setHealthMax(15);

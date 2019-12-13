@@ -6,6 +6,8 @@ public class Ship extends Construct {
 
     private final float rotationSpeed;
     private final float thrustForce;
+    private int fuel;
+    private int fuelMax;
 
     public Ship(double x, double y) {
         super(ImageResource.getImage(ImageResource.SHIP), x, y);
@@ -21,6 +23,8 @@ public class Ship extends Construct {
         setCrew(1);
         this.rotationSpeed = 6.0f;
         this.thrustForce = 20f;
+        this.fuelMax = 700;
+        this.fuel = fuelMax;
     }
 
     public Ship() {
@@ -45,5 +49,35 @@ public class Ship extends Construct {
 
     public float getThrustForce() {
         return thrustForce;
+    }
+
+    public int getFuel() {
+        return fuel;
+    }
+
+    public void setFuel(int fuel) {
+        this.fuel = fuel;
+    }
+
+    public int getFuelMax() {
+        return fuelMax;
+    }
+
+    public void setFuelMax(int fuelMax) {
+        this.fuelMax = fuelMax;
+    }
+
+    public boolean thrustForward() {
+        if (fuel < 1) {
+            return false;
+        }
+
+        fuel -= 1;
+
+        double rotationInRadians = Math.toRadians(getRotation());
+        double tx = Math.cos(rotationInRadians) * thrustForce;
+        double ty = Math.sin(rotationInRadians) * thrustForce;
+        applyForce(tx, ty);
+        return true;
     }
 }

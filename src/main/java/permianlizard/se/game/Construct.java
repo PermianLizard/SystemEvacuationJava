@@ -26,7 +26,7 @@ public abstract class Construct extends GameObject {
         this.crew = crew;
     }
 
-    public void addCrew(int amount) {
+    public void awardCrew(int amount) {
         this.crew += amount;
     }
 

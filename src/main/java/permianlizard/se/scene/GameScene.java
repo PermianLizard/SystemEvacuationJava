@@ -264,10 +264,10 @@ public class GameScene extends Scene implements GameEventListener {
             g.setColor(Color.WHITE);
 
             g.drawString("FUEL", 20, 30);
-            drawBar(g, 88, 13, 5, 20, 100, 17, false);
+            drawBar(g, 88, 13, ship.getFuel(), ship.getFuelMax(), 100, 17, false);
 
             g.drawString("HULL CONDITION", 210, 30);
-            drawBar(g, 425, 13, 5, 20, 100, 17, false);
+            drawBar(g, 425, 13, ship.getHealth(), ship.getHealthMax(), 100, 17, false);
 
             g.drawString("RESCUED", 550, 30);
             drawBar(g, 660, 13, ship.getCrew(), ship.getCrewMax(), 100, 17, false);
@@ -308,13 +308,30 @@ public class GameScene extends Scene implements GameEventListener {
         Game game = Game.getInstance();
         Ship ship = game.getShip();
 
+        int row = 0;
+
         int crew = base.getCrew();
-
-        ship.addCrew(crew);
+        ship.awardCrew(crew);
         base.setCrew(0);
-
         timedLabelList.add(new TimedLabel("+ " + crew + " CREW", ship.getX() + 40, ship.getY() + 10, 200));
-        timedLabelList.add(new TimedLabel("+ 00 FUEL", ship.getX() + 40, ship.getY() + 30, 200));
+
+        int fuel = ship.getFuel();
+        int fuelMax = ship.getFuelMax();
+        int refuel = 0;
+        if (fuel < fuelMax) {
+            ship.setFuel(fuelMax);
+            refuel = fuelMax - fuel;
+        }
+        timedLabelList.add(new TimedLabel("+ " + refuel + " FUEL", ship.getX() + 40, ship.getY() + 30, 220));
+
+        float shipHealth = ship.getHealth();
+        float shipHealthMax = ship.getHealthMax();
+        float repairs = 0;
+        if (shipHealth < shipHealthMax) {
+            ship.setHealth(shipHealthMax);
+            repairs = shipHealthMax - shipHealth;
+            timedLabelList.add(new TimedLabel("REPAIRS", ship.getX() + 40, ship.getY() + 50, 240));
+        }
 
         if (ship.getCrew() >= ship.getCrewMax()) {
             game.declareVictory();
@@ -351,14 +368,9 @@ public class GameScene extends Scene implements GameEventListener {
             } else if (keyCode == 68 || keyCode == 39) { // d, right
                 ship.rotateRight();
             } else if (keyCode == 87 || keyCode == 38) { // w, up
-                float rotationInDegrees = ship.getRotation();
-                float thrustForce = ship.getThrustForce();
-                double rotationInRadians = Math.toRadians(rotationInDegrees);
-                double tx = Math.cos(rotationInRadians) * thrustForce;
-                double ty = Math.sin(rotationInRadians) * thrustForce;
-                ship.applyForce(tx, ty);
-                //ship.translate(tx, ty);
-                thrustSprite.setVisible(true);
+                if (ship.thrustForward()) {
+                    thrustSprite.setVisible(true);
+                }
             } else if (keyCode == 83) { // s
 
             } else if (keyCode == 9) { // tab
@@ -478,8 +490,8 @@ public class GameScene extends Scene implements GameEventListener {
             rv = (int)(255 * (perc));
         } else {
             fillWidth = width * perc;
-            gv = (int)(255 * (1 - perc));
-            rv = (int)(255 * (perc));
+            gv = (int)(255 * (perc));
+            rv = (int)(255 * (1 - perc));
         }
         g.setColor(new Color(rv, gv, 0, 255));
         g.fillRect(x, y, (int)fillWidth, height);

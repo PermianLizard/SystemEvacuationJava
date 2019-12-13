@@ -49,8 +49,8 @@
 - asteroids generation [done]
 - handle case where unvisited base gets destroyed (defeat) [done]
 - handle case where ship goes too far out (defeat) [done]
-- fuel and refueling
-- damage and repair
+- fuel and refueling [done]
+- damage and repair [done]
 - game countdown timer
 - display ship speed
 - display controls at bottom of screen
