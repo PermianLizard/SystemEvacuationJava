@@ -9,6 +9,10 @@ import java.util.Random;
 
 public class Game {
 
+    public static final float GRAVITY_CONSTANT = 0.0006f;
+    public static final float SPEED_LIMIT = 20f;
+    public final static double TIME_LIMIT = 283.33;
+
     private static Game instance;
 
     public static Game getInstance() {
@@ -18,11 +22,12 @@ public class Game {
         return instance;
     }
 
-    boolean gameOver;
-    String gameOverMessage;
-    boolean victory;
-    int time;
-    final int mapLimitRadius;
+    private boolean gameOver;
+    private String gameOverMessage;
+    private boolean victory;
+    private int ticks;
+    private double timeElapsed;
+    private final int mapLimitRadius;
 
     private Ship ship;
     private Sun sun;
@@ -51,7 +56,8 @@ public class Game {
     public void newGame() {
         gameOver = false;
         victory = false;
-        time = 0;
+        ticks = 0;
+        timeElapsed = 0;
 
         objectList = new ArrayList<>();
         asteroidList = new ArrayList<>();
@@ -114,14 +120,14 @@ public class Game {
             }
 
             // generate asteroids
-            if (time % 15 == 0) {
+            if (ticks % 15 == 0) {
                 Random random = new Random();
 
                 Vector2D playerPos = new Vector2D(ship.getX() + ship.getAnchorX(), ship.getY() + ship.getAnchorY());
                 Vector2D playerVel = new Vector2D(ship.getVelX(), ship.getVelY());
 
                 double rangeMin = 1;
-                double rangeMax = MathUtil.SPEED_LIMIT;
+                double rangeMax = SPEED_LIMIT;
                 double randomValue = rangeMin + (rangeMax - rangeMin) * random.nextDouble();
 
                 if (playerVel.getLength() > randomValue) {
@@ -211,7 +217,7 @@ public class Game {
                 Vector2D aCenterPos = new Vector2D(aCenterPosX, aCenterPosY);
                 Vector2D bCenterPos = new Vector2D(bCenterPosX, bCenterPosY);
 
-                double gravForce = (MathUtil.GRAVITY_CONSTANT * objectA.getMass() * objectB.getMass()) / Math.pow(distance, 2);
+                double gravForce = (GRAVITY_CONSTANT * objectA.getMass() * objectB.getMass()) / Math.pow(distance, 2);
 
                 if (!objectA.isStaticObject() && distance < bGravityRadius) {
                     Vector2D gravVectorB = Vector2D.getUnit(Vector2D.sub(bCenterPos, aCenterPos));
@@ -345,8 +351,8 @@ public class Game {
             double velY = object.getVelY();
 
             Vector2D vel = new Vector2D(velX, velY);
-            if (vel.getLength() > MathUtil.SPEED_LIMIT) {
-                vel = Vector2D.setLength(vel, MathUtil.SPEED_LIMIT);
+            if (vel.getLength() > SPEED_LIMIT) {
+                vel = Vector2D.setLength(vel, SPEED_LIMIT);
             }
 
             vel = Vector2D.mult(vel, delta);
@@ -354,7 +360,12 @@ public class Game {
             object.translate(vel.getX(), vel.getY());
         }
 
-        time += 1;
+        ticks += 1;
+        timeElapsed += delta;
+
+        if (timeElapsed / 100 > TIME_LIMIT) {
+            declareDefeat("Time's up");
+        }
     }
 
     public boolean isGameOver() {
@@ -378,6 +389,10 @@ public class Game {
     public void declareVictory() {
         this.victory = true;
         this.gameOver = true;
+    }
+
+    public double getTimeElapsed() {
+        return timeElapsed;
     }
 
     public int getMapLimitRadius() {
@@ -497,7 +512,7 @@ public class Game {
             orbitVec = new Vector2D(orbitVec.getX(), -orbitVec.getY());
         }
 
-        double mag = Math.sqrt((MathUtil.GRAVITY_CONSTANT * objectB.getMass()) / distance);
+        double mag = Math.sqrt((GRAVITY_CONSTANT * objectB.getMass()) / distance);
         orbitVec = Vector2D.mult(orbitVec, mag);
 
         objectA.setVelX(orbitVec.getX());
@@ -517,7 +532,7 @@ public class Game {
         setShip(ship);
         setOrbit(ship, sun, 375, 0, false);
 
-        double memberPadding = 1200;
+        double memberPadding = 1500;
         double distance = 0;
         int numPlanets = 5;
 

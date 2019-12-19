@@ -271,6 +271,11 @@ public class GameScene extends Scene implements GameEventListener {
 
             g.drawString("RESCUED", 550, 30);
             drawBar(g, 660, 13, ship.getCrew(), ship.getCrewMax(), 100, 17, false);
+
+            g.drawString(String.format("Time: %.2f", Game.TIME_LIMIT - game.getTimeElapsed() / 100), 780, 30);
+
+            Vector2D playerVel = new Vector2D(ship.getVelX(), ship.getVelY());
+            g.drawString(String.format("Speed: %.2f", playerVel.getLength()), 780, 55);
         }
 
         boolean greyOut = false;

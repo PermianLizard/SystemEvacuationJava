@@ -2,9 +2,6 @@ package permianlizard.se;
 
 public class MathUtil {
 
-    public static final float GRAVITY_CONSTANT = 0.0006f;
-    public static final float SPEED_LIMIT = 20f;
-
     public static double distance(double x1, double y1, double x2, double y2) {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
