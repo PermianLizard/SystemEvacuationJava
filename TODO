@@ -51,11 +51,11 @@
 - handle case where ship goes too far out (defeat) [done]
 - fuel and refueling [done]
 - damage and repair [done]
-- game countdown timer
-- display ship speed
-- display controls at bottom of screen
-- menu scene
-- instructions scene
+- game countdown timer [done]
+- display ship speed [done]
+- display controls at bottom of screen [done]
+- menu scene [done]
+- instructions scene [done]
 - survive for 10 seconds after last rescue?
 
 == packaging ==

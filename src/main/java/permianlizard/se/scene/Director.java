@@ -28,9 +28,9 @@ public class Director implements KeyListener, MouseListener, MouseMotionListener
         }
 
         if (scene != null) {
-            sceneStack.push(scene);
             scene.director = this;
             scene.onEnter();
+            sceneStack.push(scene);
         }
     }
 

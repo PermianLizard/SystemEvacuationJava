@@ -2,6 +2,7 @@ package permianlizard.se;
 
 import permianlizard.se.scene.Director;
 import permianlizard.se.scene.GameScene;
+import permianlizard.se.scene.MenuScene;
 
 import javax.swing.*;
 import java.awt.*;
@@ -89,8 +90,8 @@ public class Main implements Runnable {
         director = new Director(WIDTH, HEIGHT);
         canvas.addKeyListener(director);
 
-        GameScene gameScene = new GameScene();
-        director.pushScene(gameScene);
+        MenuScene menuScene = new MenuScene();
+        director.pushScene(menuScene);
 
         long lastLoopTime = System.nanoTime();
         final long desiredDeltaLoop =  (1000 * 1000 * 1000) / FPS;

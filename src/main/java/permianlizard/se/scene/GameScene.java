@@ -75,7 +75,6 @@ public class GameScene extends Scene implements GameEventListener {
     }
 
     public void onEnter() {
-
         Game game = Game.getInstance();
         game.newGame();
 
@@ -105,8 +104,9 @@ public class GameScene extends Scene implements GameEventListener {
     }
 
     public void onExit() {
+        System.out.println("GameScene onExit()");
         Game game = Game.getInstance();
-        game.cleanup();
+        //game.cleanup();
         game.removeEventListener(this);
     }
 
@@ -276,6 +276,8 @@ public class GameScene extends Scene implements GameEventListener {
 
             Vector2D playerVel = new Vector2D(ship.getVelX(), ship.getVelY());
             g.drawString(String.format("Speed: %.2f", playerVel.getLength()), 780, 55);
+
+            g.drawString("<ESC> Exit  <P> Pause  <TAB> Map", 250, 760);
         }
 
         boolean greyOut = false;
@@ -390,7 +392,7 @@ public class GameScene extends Scene implements GameEventListener {
         }
 
         if (keyCode == 27) { // Esc
-
+            this.director.popScene();
         }
     }
 
